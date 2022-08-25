@@ -1,0 +1,9 @@
+# default setup for production
+[production]
+> 0.2%, not dead, not op_mini all
+
+# default setup for development
+[development]
+last 1 chrome version, last 1 firefox version, last 1 safari version
+
+# > 0.2% support all browsers which have over 0.2% of the global market share.
