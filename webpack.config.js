@@ -1,5 +1,6 @@
 const path = require('path')
 const { merge } = require('webpack-merge')
+const parts = require('./webpack.parts')
 
 const commonConfig = merge([
 	{
@@ -7,17 +8,9 @@ const commonConfig = merge([
 		output: {
 			path: path.resolve('static', 'assets'),
 			filename: 'bundle.js'
-		},
-		module: {
-			rules: [
-				{
-					test: /\.js$/,
-					exclude: /node_modules/,
-					use: ['babel-loader']
-				}
-			]
 		}
-	}
+	},
+	parts.loadJavascript()
 ])
 
 const productionConfig = merge([])
