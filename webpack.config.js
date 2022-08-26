@@ -2,15 +2,18 @@ const path = require('path')
 const { merge } = require('webpack-merge')
 const parts = require('./webpack.parts')
 
+const cssLoaders = [parts.tailwind()]
+
 const commonConfig = merge([
 	{
-		entry: [path.resolve('src', 'js', 'app.js')],
+		entry: [path.resolve('src', 'app.js')],
 		output: {
 			path: path.resolve('static', 'assets'),
 			filename: 'bundle.js'
 		}
 	},
-	parts.loadJavascript()
+	parts.loadJavascript(),
+	parts.extractCSS({ loaders: cssLoaders })
 ])
 
 const productionConfig = merge([])

@@ -4,8 +4,28 @@ This project uses [HUGO](https://gohugo.io/) with [Webpack](https://webpack.js.o
 
 Webpack is needed for the following.
 - [Tailwind CSS](https://tailwindcss.com/)
-- Transpiling and Polyfilling Javascript
+- Transpile and Polyfill Javascript
 
+---
+#### Get Started.
+**1. You will need the following installed**
+- [Nodejs](https://nodejs.org/en/)
+- [Hugo CLI](https://gohugo.io/getting-started/installing/)
 
+**2. You will need to install dependencies**
+run the following command:
+```
+npm install
+```
+---
 
+#### Run Development Server
+```
+npm run dev
+```
+This will run webpack in watch mode along with hugo server in parallel.
+webpack in watch mode will polyfill our Javascript and extract our CSS from tailwind.
+webpack will output the transpiled js and css into /static/assets. These files are
+then referenced in the head.html.
+Hugo Server will update when there are any changes so each time webpack transpile the css or javascript hugo will hot reload the browser for us.
 
