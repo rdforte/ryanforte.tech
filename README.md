@@ -3,7 +3,7 @@
 This project uses [HUGO](https://gohugo.io/) with [Webpack](https://webpack.js.org/).
 
 Webpack is needed for the following.
-- [Tailwind CSS](https://tailwindcss.com/)
+- Extract [Tailwind CSS](https://tailwindcss.com/)
 - Transpile and Polyfill Javascript
 
 ---
