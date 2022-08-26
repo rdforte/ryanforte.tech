@@ -6,8 +6,8 @@
   "scripts": {
     "webpack:watch": "webpack --mode=development --watch",
     "hugo": "hugo server",
-    "dev": "npm-run-all --parallel webpack:watch hugo",
-    "build": "webpack --mode=production"
+    "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
+    "build": "NODE_ENV=production webpack --mode=production"
   },
   "keywords": [],
   "author": "",

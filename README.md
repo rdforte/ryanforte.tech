@@ -29,3 +29,8 @@ webpack will output the transpiled js and css into /static/assets. These files a
 then referenced in the head.html.
 Hugo Server will update when there are any changes so each time webpack transpile the css or javascript hugo will hot reload the browser for us.
 
+During development the start up time may take a bit longer than usual. The reason being is because during development we extract all the tailwind
+classes. This is a work around in development to get tailwind, webpack and hugo server to all play nice together. When running the production build
+we do a check in the tailwind.config.js for the environment variable **NODE_ENV** if it is production then we do not generate all tailwind classes
+but only those we need.
+
