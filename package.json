@@ -7,7 +7,7 @@
     "webpack:watch": "webpack --mode=development --watch",
     "hugo": "hugo server",
     "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
-    "build": "NODE_ENV=production webpack --mode=production"
+    "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public"
   },
   "keywords": [],
   "author": "",
