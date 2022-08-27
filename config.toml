@@ -1,6 +1,6 @@
-baseURL = 'http://example.org/'
+baseURL = 'https://ryanforte.tech'
 languageCode = 'en-us'
-title = 'My New Hugo Site'
+title = 'Ryan Forte'
 
 custom_css = ["static/assets/main.css"]
 custom_js = ["static/assets/bundle.js"]
