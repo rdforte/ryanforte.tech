@@ -1,2 +1,2 @@
-import './test.js'
+import './tempAlert.js'
 import './main.css'
