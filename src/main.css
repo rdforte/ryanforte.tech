@@ -2,5 +2,5 @@
 @tailwind components;
 @tailwind utilities;
 
-/* @import "./homePage.css" */
+@import "./homePage.css"
 

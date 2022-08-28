@@ -1,11 +1,30 @@
 
 .slide-up-animation {
-  animation-name: fade-in;
-  animation-duration: 2s;
+  opacity: 0;
+  animation-name: fade-in-up;
+  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-delay: var(--animation-delay);
+  animation-fill-mode: forwards;
 }
 
-@keyframes fade-in {
-  0% { opacity: 0; transform: translateY(50%) }
-  66% { opacity: 0; transform: translateY(50%) }
+@keyframes fade-in-up {
+  0% { opacity: 0; transform: translateY(50px) }
+  66% { opacity: 0; transform: translateY(50px) }
+  100% { opacity: 1; transform: translateY(0) }
+}
+
+.slide-down-animation {
+  opacity: 0;
+  animation-name: fade-in-down;
+  animation-duration: 1s;
+  animation-timing-function: ease-out;
+  animation-delay: var(--animation-delay);
+  animation-fill-mode: forwards;
+}
+
+@keyframes fade-in-down {
+  0% { opacity: 0; transform: translateY(-50px) }
+  66% { opacity: 0; transform: translateY(-50px) }
   100% { opacity: 1; transform: translateY(0) }
 }
