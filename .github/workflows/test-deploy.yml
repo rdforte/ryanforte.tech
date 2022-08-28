@@ -5,10 +5,9 @@ env:
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 jobs:
   test:
+# JOB TEST =====================================================================
     timeout-minutes: 10
     runs-on: ubuntu-latest
     steps:
@@ -36,7 +35,8 @@ jobs:
         name: playwright-report
         path: playwright-report/
         retention-days: 30
-  deploy-production:
+# JOB DEPLOY ===================================================================
+  deploy:
     runs-on: ubuntu-latest
     needs: test
     steps:
