@@ -7,7 +7,8 @@
     "webpack:watch": "webpack --mode=development --watch",
     "hugo": "hugo server",
     "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
-    "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public"
+    "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public",
+    "start:ci": "NODE_ENV=production webpack --mode=production && hugo server"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +16,7 @@
   "devDependencies": {
     "@babel/core": "^7.18.13",
     "@babel/preset-env": "^7.18.10",
+    "@playwright/test": "^1.25.1",
     "babel-loader": "^8.2.5",
     "core-js": "^3.25.0",
     "css-loader": "^6.7.1",
