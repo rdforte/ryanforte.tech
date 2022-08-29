@@ -1,5 +1,13 @@
 const baseConfig = {
-	content: ['content/**/*.md', 'layouts/**/*.html']
+	content: ['content/**/*.md', 'layouts/**/*.html'],
+	theme: {
+		extend: {
+			fontSize: {
+				eighty: '80px',
+				ninety: '90px'
+			}
+		}
+	}
 }
 
 const getTailwindConfig = () => {
