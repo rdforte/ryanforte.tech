@@ -8,7 +8,8 @@
     "hugo": "hugo server",
     "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
     "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public",
-    "start:ci": "NODE_ENV=production webpack --mode=production && hugo server"
+    "start:ci": "NODE_ENV=production webpack --mode=production && hugo server",
+    "test": "npx playwright test"
   },
   "keywords": [],
   "author": "",
