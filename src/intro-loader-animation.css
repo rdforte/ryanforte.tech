@@ -1,0 +1,45 @@
+#main-content {
+  display: none;
+}
+
+#intro-loader {
+  animation: intro-loader-animation 3s linear forwards; 
+  background-color: #18181b;
+}
+
+@keyframes intro-loader-animation {
+  to {
+    background-color: #1f2937;
+  }
+}
+
+#logo-animated__border {
+  stroke-dasharray: 1560;
+  stroke-dashoffset: 1560;
+  animation: border-animation 3s linear forwards;
+}
+
+@keyframes border-animation {
+  90% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    stroke-opacity: 0;
+  }
+}
+
+#logo-animated__letter {
+  opacity: 0;
+  animation: letter-animation 3s linear forwards;
+}
+
+@keyframes letter-animation {
+  90% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
