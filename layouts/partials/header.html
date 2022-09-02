@@ -6,21 +6,20 @@
 				id="header-logo"
 				class="w-11 slide-down-animation"
 				style="--animation-delay: 0s"
-				href="./"
+				href="/"
 				>{{ partial "logo" . }}</a
 			>
 			<div class="flex space-x-4">
-				<!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-gray-700 hover:text-white" -->
 				<a
-					href="#"
-					class="text-white hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
+					id="nav-bar__home-link"
+					href="/"
+					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
 					style="--animation-delay: 0.2s"
-					aria-current="page"
 					>Home</a
 				>
 				<a
-					id="blog-header-link"
-					href="#"
+					id="nav-bar__blog-link"
+					href="/blog"
 					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
 					style="--animation-delay: 0.4s"
 					>Blog</a

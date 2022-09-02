@@ -1,3 +1,6 @@
-import './tempAlert.js'
-import './intro-loader-animation'
-import './main.css'
+// JS
+import './js/intro-loader-animation'
+import './js/nav-bar'
+
+// CSS
+import './css/main.css'

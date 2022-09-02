@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ .Title }}</title>
+
+		<!-- css -->
+		<link rel="stylesheet" href="/assets/main.css" />
+
+		<!-- javascript -->
+		<script type="text/javascript" src="/assets/bundle.js" defer></script>
+	</head>
+	<body class="bg-gray-800">
+		{{- partial "header.html" . -}}
+		<div class="mx-auto px-2 sm:px-6 lg:px-8">
+			<h1 class="sm:text-5xl text-white font-bold text-4xl text-left mt-4">
+				{{.Title}}
+			</h1>
+			<script>
+				console.log('{{.Pages}}')
+			</script>
+			<div>
+				<ul>
+					<!-- Ranges through content/posts/*.md -->
+					{{ range .Pages.ByDate.Reverse }}
+					<li>
+						<a href="{{.Permalink}}">{{.Title}}</a>
+					</li>
+					{{ end }}
+				</ul>
+			</div>
+		</div>
+	</body>
+</html>

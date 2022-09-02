@@ -1,5 +1,5 @@
 
-.slide-up-animation {
+#main-content .slide-up-animation {
   opacity: 0;
   animation-name: fade-in-up;
   animation-duration: 1s;
@@ -14,7 +14,7 @@
   100% { opacity: 1; transform: translateY(0) }
 }
 
-.slide-down-animation {
+#main-content .slide-down-animation {
   opacity: 0;
   animation-name: fade-in-down;
   animation-duration: 1s;

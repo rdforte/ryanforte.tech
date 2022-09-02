@@ -1,0 +1,2 @@
+blog:
+	./scripts/makeBlog
