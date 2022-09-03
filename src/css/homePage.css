@@ -4,7 +4,6 @@
   animation-name: fade-in-up;
   animation-duration: 1s;
   animation-timing-function: ease-out;
-  animation-delay: var(--animation-delay);
   animation-fill-mode: forwards;
 }
 
@@ -19,7 +18,6 @@
   animation-name: fade-in-down;
   animation-duration: 1s;
   animation-timing-function: ease-out;
-  animation-delay: var(--animation-delay);
   animation-fill-mode: forwards;
 }
 
