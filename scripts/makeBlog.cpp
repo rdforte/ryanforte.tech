@@ -21,6 +21,7 @@ int main()
   strcpy(newBlogScript, script.c_str());
 
   system(newBlogScript);
+  system("mkdir /static/blog/images/" + blogName);
 
   cout << "\n";
 

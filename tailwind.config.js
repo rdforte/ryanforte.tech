@@ -1,5 +1,6 @@
 const baseConfig = {
 	content: ['content/**/*.md', 'layouts/**/*.html'],
+	plugins: [require('@tailwindcss/typography')], // add default styles to markdown
 	theme: {
 		extend: {
 			fontSize: {

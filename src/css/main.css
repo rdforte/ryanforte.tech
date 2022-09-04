@@ -10,5 +10,9 @@
   .page-gutter {
     @apply max-w-6xl mx-auto px-2 sm:px-6 lg:px-8;
   }
+
+  .markdown {
+    @apply text-slate-100 pt-6 prose prose-headings:text-red-400 prose-xl;
+  }
 }
 
