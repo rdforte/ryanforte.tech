@@ -1,3 +1,3 @@
 +++
-title = "Blog Coming Soon..."
+title = "Tech Blog"
 +++

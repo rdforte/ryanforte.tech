@@ -14,18 +14,26 @@
 	<body class="bg-gray-800">
 		{{- partial "header.html" . -}}
 		<div class="page-gutter">
-			<h1 class="sm:text-5xl text-white font-bold text-4xl text-left mt-4">
+			<h1 class="sm:text-5xl text-white font-bold text-4xl text-left mt-8">
 				{{.Title}}
 			</h1>
-			<div>
-				<ul>
-					<!-- Ranges through content/posts/*.md -->
-					{{ range .Pages.ByDate.Reverse }}
-					<li>
-						<a href="{{.Permalink}}">{{.Title}}</a>
-					</li>
-					{{ end }}
-				</ul>
+			<div
+				class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-8 mb-8"
+			>
+				<!-- Ranges through content/posts/*.md -->
+				{{ range .Pages.ByDate.Reverse }}
+				<a href="{{.Permalink}}">
+					<div class="p-4 rounded-md flex items-center justify-center flex-col">
+						<script>
+							console.log('{{.Params.Cover}}')
+						</script>
+						<img src="{{.Params.Cover}}" class="rounded-md" />
+						<div class="mt-4 text-3xl text-white font-semibold w-full">
+							{{.Title}}
+						</div>
+					</div>
+				</a>
+				{{ end }}
 			</div>
 		</div>
 	</body>
