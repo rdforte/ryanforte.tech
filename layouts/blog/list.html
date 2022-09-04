@@ -13,13 +13,10 @@
 	</head>
 	<body class="bg-gray-800">
 		{{- partial "header.html" . -}}
-		<div class="mx-auto px-2 sm:px-6 lg:px-8">
+		<div class="page-gutter">
 			<h1 class="sm:text-5xl text-white font-bold text-4xl text-left mt-4">
 				{{.Title}}
 			</h1>
-			<script>
-				console.log('{{.Pages}}')
-			</script>
 			<div>
 				<ul>
 					<!-- Ranges through content/posts/*.md -->
