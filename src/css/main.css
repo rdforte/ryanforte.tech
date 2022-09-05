@@ -12,7 +12,12 @@
   }
 
   .markdown {
-    @apply text-slate-100 pt-6 prose prose-headings:text-red-400 prose-xl;
+    @apply text-slate-100 pt-6 prose prose-headings:text-red-400 prose-xl prose-a:text-green-400;
   }
+}
+
+/* Override the list marker color to be slate-100 */
+.markdown li::marker {
+  color: #f1f5f9 
 }
 

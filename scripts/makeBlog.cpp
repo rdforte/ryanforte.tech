@@ -14,14 +14,12 @@ int main()
 
   replace(blogName.begin(), blogName.end(), ' ', '-');
 
-  string script = "hugo new content/blog/" + blogName + ".md";
+  string script = "mkdir -p static/blog/images/" + blogName + " && hugo new content/blog/" + blogName + ".md";
 
   char newBlogScript[script.size()];
-
   strcpy(newBlogScript, script.c_str());
 
   system(newBlogScript);
-  system("mkdir /static/blog/images/" + blogName);
 
   cout << "\n";
 
