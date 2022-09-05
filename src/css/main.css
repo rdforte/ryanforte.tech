@@ -21,3 +21,13 @@
   color: #f1f5f9 
 }
 
+/* Override the code block background color */
+.markdown pre {
+  background-color: #18181b;
+}
+
+.markdown strong {
+  color: #f87171;
+  font-weight: bolder;
+  font-size: 22px;
+}
