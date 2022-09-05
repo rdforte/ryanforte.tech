@@ -31,3 +31,17 @@
   font-weight: bolder;
   font-size: 22px;
 }
+
+.markdown em {
+  color: #e2e8f0;
+  font-weight: 300;
+  font-size: 18px;
+}
+
+.markdown h2 {
+  margin-top: 80px;
+}
+
+.markdown h3 {
+  margin-top: 20px;
+}

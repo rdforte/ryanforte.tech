@@ -77,3 +77,84 @@ Shift g = Jump to bottom of file.
 ```
 
 **👉 NOTE** You can navigate to any line number by first typing in the line you want to navigate to followed by Shift g
+
+### Clear word
+
+![Clear word](/blog/images/30-days-vim/clear-word.png)
+
+```
+c w = clear the whole word starting from your cursor and then enter insert mode.
+```
+
+### Replace/Delete character
+
+![Replace/delete character](/blog/images/30-days-vim/replace-delete-character.png)
+
+```
+r = replace the current character with another charter.
+x = delete the current character.
+```
+
+### Copy & Paste
+
+![Yank text](/blog/images/30-days-vim/yank-text.gif)
+_v, shift 4, kkk, p_
+
+![Yank text](/blog/images/30-days-vim/yank-text.png)
+
+```
+v = this will select the character you want to highlight. Use h,j,k,l or another vim command to then move the highlight.
+y = this will yank/copy the section of characters you have highlighted.
+p = this will paste what you have yanked/copied.
+```
+- Shift v will highlight the whole line.
+- double tap y to yank the whole line.
+
+### Delete Line
+
+![Delete line](/blog/images/30-days-vim/delete-line.png)
+
+```
+double tap `d` to delete the whole line.
+```
+
+**👉 NOTE** deleting something will save it to be pasted later so if you wanted to move a line somewhere else you could delete it then hit **p** to paste it.
+
+### Word Searching and Replacing
+
+![Search Word](/blog/images/30-days-vim/search-word.gif)
+
+**👉 NOTE** Once you have found the word you are searching for you can jump straight to it by hitting enter on your keyboard. If there are multiple words of the same word you can navigate down through them with **n** or up with **N**.
+
+In order to find and replace multiple words you can run the following command:
+
+```
+:%s/foo/bar/g
+```
+
+The above command will replace all words **foo** with the word **bar**.
+
+If I only want to replace some instances of foo with bar then I can add **gc** to the end of the command.
+
+![Replace Words](/blog/images/30-days-vim/replace-words.gif)
+
+I find the above command super beneficial when I have to squash multiple commits.
+
+### Take Aways
+
+Vim is a pretty cool tool once you get to know how to use it. At the beginning it can be pretty painful and tough to learn but once you get the hang of it you will learn to love and appreciate it.
+If you want to practice your Vim open up your terminal and type in the following command to get the Vim Tutor where you can do mini tutorials that run you through all the main commands of Vim.
+
+#### Vimtutor
+
+![Vimtutor](/blog/images/30-days-vim/vimtutor.png)
+
+Also Before I bounce one more thing.
+
+```
+To exit Vim :q 
+To exit without saving :q!
+To save and exit :wq
+```
+
+Take care homies ✌️
