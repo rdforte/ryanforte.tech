@@ -4,9 +4,7 @@ date = "2022-09-03T12:22:52+10:00"
 draft = false
 title = "30 days of Vim with VSCode. Was it worth it… 🤔"
 coverImage = "/blog/images/30-days-vim/cover.png"
-coverImageId="30-days-vim-cover"
 headerImage = "/blog/images/30-days-vim/header.png"
-headerImageId="30-days-vim-header"
 +++
 
 Im gonna keep this short and sweet outlining my journey using Vim with VSCode, the main commands I used on a daily basis, whether it increased/decreased productivity, whether or not I recommend it and how to get setup incase you wanna give it a crack also!

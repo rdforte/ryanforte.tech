@@ -6,9 +6,6 @@ const baseConfig = {
 			fontSize: {
 				eighty: '80px',
 				ninety: '90px'
-			},
-			aspectRatio: {
-				'7/3': '7/3'
 			}
 		}
 	}

@@ -20,33 +20,19 @@
 			<div
 				class="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-8 mt-8 mb-8"
 			>
-				<!-- Blog Posts -->
+				<!-- Ranges through content/posts/*.md -->
 				{{ range .Pages.ByDate.Reverse }}
 				<a href="{{.Permalink}}">
 					<div class="p-4 rounded-md flex items-center justify-center flex-col">
-						<img
-							id="{{.Params.CoverImageId}}"
-							src="/blog/images/_default/cover.png"
-							class="rounded-md w-full aspect-square animate-pulse"
-						/>
+						<script>
+							console.log('{{.Params.Cover}}')
+						</script>
+						<img src="{{.Params.CoverImage}}" class="rounded-md" />
 						<div class="mt-4 text-3xl text-white font-semibold w-full">
 							{{.Title}}
 						</div>
 					</div>
 				</a>
-				<!-- Load Cover Image -->
-				<script defer>
-					const image = document.getElementById('{{.Params.CoverImageId}}')
-					const downloadingImage = new Image()
-					downloadingImage.onload = el => {
-						const src = el?.path?.[0]?.src
-						if (src) {
-							image.classList.remove('animate-pulse')
-							image.src = src
-						}
-					}
-					downloadingImage.src = '{{.Params.CoverImage}}'
-				</script>
 				{{ end }}
 			</div>
 		</div>
