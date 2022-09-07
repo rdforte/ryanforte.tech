@@ -39,11 +39,13 @@
 					const image = document.getElementById('{{.Params.CoverImageId}}')
 					const downloadingImage = new Image()
 					downloadingImage.onload = el => {
-						const src = el?.path?.[0]?.src
+						const src = el?.composedPath()?.[0]?.src
 						if (src) {
-							image.classList.remove('animate-pulse')
 							image.src = src
+						} else {
+							image.src = '/blog/images/_default/image-load-error.gif'
 						}
+						image.classList.remove('animate-pulse')
 					}
 					downloadingImage.src = '{{.Params.CoverImage}}'
 				</script>
