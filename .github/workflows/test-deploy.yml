@@ -20,7 +20,7 @@ jobs:
     - name: install apt file
       run: sudo apt-get install apt-file -y
     - name: update apt file
-      run: sudo apt-file update -y
+      run: sudo apt-file update
     - name: install lib32stdc++6
       run: sudo apt-get install lib32stdc++6 -y
     - name: install Curl
