@@ -17,6 +17,8 @@ jobs:
         node-version: '14.x'
     - name: sudo apt update and upgrade
       run: sudo apt update && sudo apt upgrade -y
+    - name: install lib32stdc++6
+      run: sudo apt-get install lib32stdc++6 -y
     - name: install Curl
       run: sudo apt install curl -y
     - name: install Homebrew
@@ -40,8 +42,6 @@ jobs:
           node-version: '14.x'
       - name: sudo apt update and upgrade
         run: sudo apt update && sudo apt upgrade -y
-      - name: install lib32stdc++6
-        run: sudo apt-get install lib32stdc++6 -y
       - name: install Curl
         run: sudo apt install curl -y
       - name: install Homebrew
