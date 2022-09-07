@@ -23,11 +23,11 @@
 				<!-- Blog Posts -->
 				{{ range .Pages.ByDate.Reverse }}
 				<a href="{{.Permalink}}">
-					<div class="p-4 rounded-md flex items-center justify-center flex-col">
+					<div class="p-4 rounded-lg flex items-center justify-center flex-col">
 						<img
 							id="{{.Params.CoverImageId}}"
 							src="/blog/images/_default/cover.png"
-							class="rounded-md w-full aspect-square animate-pulse"
+							class="rounded-lg w-full aspect-square animate-pulse"
 						/>
 						<div class="mt-4 text-3xl text-white font-semibold w-full">
 							{{.Title}}

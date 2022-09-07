@@ -14,11 +14,30 @@
 	<body class="bg-gray-800">
 		{{- partial "header.html" . -}}
 		<div class="page-gutter pb-4">
-			<img class="w-full aspect-[7/3]" src="{{.Params.HeaderImage}}" />
+			<img
+				class="w-full aspect-[7/3] rounded-lg animate-pulse"
+				src="/blog/images/_default/cover.png"
+				id="{{.Params.HeaderImageId}}"
+			/>
 			<h2 class="sm:text-6xl text-4xl text-slate-300 font-bold mt-4">
 				{{.Title}}
 			</h2>
 			<div class="markdown">{{.Content}}</div>
 		</div>
 	</body>
+	<!-- Load Cover Image -->
+	<script defer>
+		const image = document.getElementById('{{.Params.HeaderImageId}}')
+		const downloadingImage = new Image()
+		downloadingImage.onload = el => {
+			const src = el?.composedPath()?.[0]?.src
+			if (src) {
+				image.src = src
+			} else {
+				image.src = '/blog/images/_default/image-load-error.gif'
+			}
+			image.classList.remove('animate-pulse')
+		}
+		downloadingImage.src = '{{.Params.HeaderImage}}'
+	</script>
 </html>

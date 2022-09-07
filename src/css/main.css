@@ -16,6 +16,10 @@
   }
 }
 
+.markdown {
+  margin: auto;
+}
+
 /* Override the list marker color to be slate-100 */
 .markdown li::marker {
   color: #f1f5f9 
@@ -44,4 +48,9 @@
 
 .markdown h3 {
   margin-top: 20px;
+}
+
+.markdown img {
+  border-radius: 0.5rem;
+  width: 100%;
 }
