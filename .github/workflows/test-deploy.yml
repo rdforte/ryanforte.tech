@@ -12,17 +12,9 @@ jobs:
     runs-on: macos-latest
     steps:
     - uses: actions/checkout@v2
-    # - uses: actions/setup-node@v2
-    #   with:
-    #     node-version: '14.x'
-    # - name: sudo apt update and upgrade
-    #   run: sudo apt update && sudo apt upgrade -y
-    # - name: install libstdc++6
-    #   run: sudo apt-get install libstdc++6 -y
-    # - name: install Curl
-    #   run: sudo apt install curl -y
-    # - name: install Homebrew
-    #   run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    - uses: actions/setup-node@v2
+      with:
+        node-version: '14.x'
     - name: install Hugo
       run: brew install hugo
     - name: Install dependencies
@@ -37,16 +29,9 @@ jobs:
     needs: test
     steps:
       - uses: actions/checkout@v2
-      # - uses: actions/setup-node@v2
-      #   with:
-      #     node-version: '14.x'
-      # - name: sudo apt update and upgrade
-      #   run: sudo apt update && sudo apt upgrade -y
-      # - name: install Curl
-      #   run: sudo apt install curl -y
-      # - name: install Homebrew
-      #   run: /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-      # - name: install Hugo
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
         run: brew install hugo
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
