@@ -23,5 +23,5 @@ test('should navigate to the individual blog page when select blog', async ({
 
 	await page.locator('text=30 days of Vim').click()
 
-	await expect(page).toHaveTitle(/30 days of vim with vscode/i)
+	await expect(page).toHaveTitle(/30 days vim/i)
 })

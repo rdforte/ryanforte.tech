@@ -2,7 +2,9 @@
 tags = []
 date = "2022-09-03T12:22:52+10:00"
 draft = false
-title = "30 days of Vim with VSCode. Was it worth it… 🤔"
+title = "30 Days Vim"
+heading = "30 days of Vim with VSCode. Was it worth it… 🤔"
+name = "30-days-vim"
 coverImage = "/blog/images/30-days-vim/cover.png"
 coverImageId="30-days-vim-cover"
 headerImage = "/blog/images/30-days-vim/header.png"
