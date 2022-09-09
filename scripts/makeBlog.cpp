@@ -23,5 +23,5 @@ int main()
 
   cout << "\n";
 
-  cout << "The blog " << blogName << "has been created in dir content/blog";
+  cout << "The blog " << blogName << " has been created in dir content/blog";
 }

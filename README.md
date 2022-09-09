@@ -34,3 +34,17 @@ classes. This is a work around in development to get tailwind, webpack and hugo 
 we do a check in the tailwind.config.js for the environment variable **NODE_ENV** if it is production then we do not generate all tailwind classes
 but only those we need.
 
+---
+
+#### Compressing Blog images
+Compressing blog images requires:
+[pngquant](https://pngquant.org)
+
+you can download pngquant via homebrew
+```
+ brew install pngquant
+```
+To compress blog images. From your root directory run the following command:
+```
+make compress
+```
