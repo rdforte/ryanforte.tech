@@ -26,22 +26,8 @@
 		</div>
 	</body>
 	<!-- Load Header Image -->
-	<script defer>
-		const image = document.getElementById('{{.Params.HeaderImageId}}')
-		const downloadingImage = new Image()
-		downloadingImage.onload = el => {
-			const src = el?.composedPath()?.[0]?.src
-			if (src) {
-				image.src = src
-			}
-			image.classList.remove('animate-pulse')
-		}
-
-		downloadingImage.onerror = () => {
-			image.src = '/blog/images/_default/image-load-error.gif'
-			image.classList.remove('animate-pulse')
-		}
-
-		downloadingImage.src = '{{.Params.HeaderImage}}'
-	</script>
+	{{$loaderImageId := .Params.HeaderImageId}} {{$loaderImageSrc :=
+	.Params.HeaderImage}} {{.Scratch.Set "loaderImageId" $loaderImageId}}
+	{{.Scratch.Set "loaderImageSrc" $loaderImageSrc}} {{ partial "image-loader" .
+	}}
 </html>
