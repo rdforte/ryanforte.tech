@@ -1,6 +1,6 @@
 <script defer>
 	;(() => {
-		const image = document.getElementById('{{.Scratch.Get "loaderImageId"}}')
+		const image = document.getElementById('{{.Scratch.Get "imageLoaderId"}}')
 		const downloadingImage = new Image()
 		downloadingImage.onload = el => {
 			const src = el?.composedPath()?.[0]?.src
@@ -15,6 +15,6 @@
 			image.classList.remove('animate-pulse')
 		}
 
-		downloadingImage.src = '{{.Scratch.Get "loaderImageSrc"}}'
+		downloadingImage.src = '{{.Scratch.Get "imageLoaderSrc"}}'
 	})()
 </script>

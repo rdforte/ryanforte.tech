@@ -26,8 +26,6 @@
 		</div>
 	</body>
 	<!-- Load Header Image -->
-	{{$loaderImageId := .Params.HeaderImageId}} {{$loaderImageSrc :=
-	.Params.HeaderImage}} {{.Scratch.Set "loaderImageId" $loaderImageId}}
-	{{.Scratch.Set "loaderImageSrc" $loaderImageSrc}} {{ partial "image-loader" .
-	}}
+	{{.Scratch.Set "imageLoaderId" .Params.HeaderImageId}} {{.Scratch.Set
+	"imageLoaderSrc" .Params.HeaderImage}} {{ partial "image-loader" . }}
 </html>

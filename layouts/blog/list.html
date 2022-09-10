@@ -35,10 +35,9 @@
 					</div>
 				</a>
 				<!-- Load Cover Image -->
-				{{$loaderImageId := .Params.CoverImageId}} {{$loaderImageSrc :=
-				.Params.CoverImage}} {{.Scratch.Set "loaderImageId" $loaderImageId}}
-				{{.Scratch.Set "loaderImageSrc" $loaderImageSrc}} {{ partial
-				"image-loader" . }} {{ end }}
+				{{.Scratch.Set "imageLoaderId" .Params.CoverImageId}} {{.Scratch.Set
+				"imageLoaderSrc" .Params.CoverImage}} {{ partial "image-loader" . }} {{
+				end }}
 			</div>
 		</div>
 	</body>
