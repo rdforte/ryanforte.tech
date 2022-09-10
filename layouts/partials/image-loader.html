@@ -1,6 +1,10 @@
+<!-- image-loader -->
+<!-- responsible for loading an image and handling the default loading and error states -->
+<!-- takes two parameters id and src which can be passed via a dict -->
+<!-- example: (dict "id" .Params.HeaderImageId "src" .Params.HeaderImage) -->
 <script defer>
 	;(() => {
-		const image = document.getElementById('{{.Scratch.Get "imageLoaderId"}}')
+		const image = document.getElementById('{{.id}}')
 		const downloadingImage = new Image()
 		downloadingImage.onload = el => {
 			const src = el?.composedPath()?.[0]?.src
@@ -15,6 +19,6 @@
 			image.classList.remove('animate-pulse')
 		}
 
-		downloadingImage.src = '{{.Scratch.Get "imageLoaderSrc"}}'
+		downloadingImage.src = '{{.src}}'
 	})()
 </script>

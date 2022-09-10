@@ -35,9 +35,8 @@
 					</div>
 				</a>
 				<!-- Load Cover Image -->
-				{{.Scratch.Set "imageLoaderId" .Params.CoverImageId}} {{.Scratch.Set
-				"imageLoaderSrc" .Params.CoverImage}} {{ partial "image-loader" . }} {{
-				end }}
+				{{ partial "image-loader" (dict "id" .Params.CoverImageId "src"
+				.Params.CoverImage) }} {{ end }}
 			</div>
 		</div>
 	</body>
