@@ -38,17 +38,20 @@
 				<script defer>
 					;(() => {
 						const image = document.getElementById('{{.Params.CoverImageId}}')
-						console.log('image:', image)
 						const downloadingImage = new Image()
 						downloadingImage.onload = el => {
 							const src = el?.composedPath()?.[0]?.src
 							if (src) {
 								image.src = src
-							} else {
-								image.src = '/blog/images/_default/image-load-error.gif'
 							}
 							image.classList.remove('animate-pulse')
 						}
+
+						downloadingImage.onerror = () => {
+							image.src = '/blog/images/_default/image-load-error.gif'
+							image.classList.remove('animate-pulse')
+						}
+
 						downloadingImage.src = '{{.Params.CoverImage}}'
 					})()
 				</script>
