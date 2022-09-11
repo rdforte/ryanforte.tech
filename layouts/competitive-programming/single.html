@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>{{ .Title }}</title>
+
+		<!-- css -->
+		<link rel="stylesheet" href="/assets/main.css" />
+
+		<!-- javascript -->
+		<script type="text/javascript" src="/assets/bundle.js" defer></script>
+	</head>
+	<body class="bg-gray-800">
+		{{- partial "header.html" . -}}
+		<div class="page-gutter pb-4">
+			<img
+				class="w-full aspect-[7/3] rounded-lg animate-pulse"
+				src="/blog/images/_default/cover.png"
+				id="{{.Params.HeaderImageId}}"
+			/>
+			<h2 class="sm:text-6xl text-4xl text-slate-300 font-bold mt-8">
+				{{.Title}}
+			</h2>
+			<div class="markdown">{{.Content}}</div>
+		</div>
+	</body>
+	<!-- Load Header Image -->
+	{{ partial "image-loader" (dict "id" .Params.HeaderImageId "src"
+	.Params.HeaderImage) }}
+</html>

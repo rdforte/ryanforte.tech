@@ -15,3 +15,7 @@ if (path === '/') {
 if (path?.includes('blog')) {
 	setNavBarActiveStyle('#nav-bar__blog-link')
 }
+
+if (path?.includes('competitive-programming')) {
+	setNavBarActiveStyle('#nav-bar__cp-link')
+}
