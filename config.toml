@@ -4,3 +4,32 @@ title = 'Ryan Forte'
 
 custom_css = ["static/assets/main.css"]
 custom_js = ["static/assets/bundle.js"]
+
+[taxonomies]
+  "competitive-programming" = "competitive-programming"
+
+[params]
+  topics = [
+    "show-all", # the default for showing all topics
+    "bit-manipulation",
+    # "arrays", 
+    # "bfs",
+    # "back-tracking",
+    # "binary-search",
+    # "bucket-sort",
+    # "dfs",
+    # "design",
+    # "dynamic-programming",
+    # "fast-and-slow-pointers",
+    # "graph",
+    # "heap",
+    # "in-place-reversal-linked-list",
+    # "intervals",
+    # "quick-select",
+    # "sliding-window",
+    # "sorting",
+    # "topological-sort",
+    # "trie",
+    # "two-pointers",
+    # "union-find"
+    ]

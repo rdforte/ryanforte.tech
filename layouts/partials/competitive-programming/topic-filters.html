@@ -1,0 +1,21 @@
+{{ range $topic := .Site.Params.topics }}
+<a
+	id="topic-{{$topic}}"
+	href="/competitive-programming/{{ $topic }}"
+	class="text-zinc-300 p-2 m-1 rounded-md border-zinc-300 border-2 capitalize"
+>
+	{{ replace $topic "-" " " }}
+</a>
+<script defer>
+	;(() => {
+		const topic = '{{$topic}}'
+		const title = '{{$.Title}}'
+		if (topic === title) {
+			const listItemElement = document.querySelector('#topic-{{$topic}}')
+
+			listItemElement.style.color = '#facc15'
+			listItemElement.style.borderColor = '#facc15'
+		}
+	})()
+</script>
+{{end}}

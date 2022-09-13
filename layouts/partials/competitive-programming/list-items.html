@@ -1,0 +1,31 @@
+{{ range .Pages.ByDate.Reverse }}
+<a href="{{.Permalink}}">
+	<style>
+		.cp-list-item__easy {
+			color: #22c55e;
+		}
+
+		.cp-list-item__medium {
+			color: #f59e0b;
+		}
+
+		.cp-list-item__hard {
+			color: #ef4444;
+		}
+	</style>
+	<div class="p-4 rounded-lg flex items-center bg-slate-200">
+		<img
+			src="/default/{{.Params.Platform}}.png"
+			class="rounded-lg h-12 aspect-square mr-4"
+		/>
+		<div class="flex items-center justify-between w-full">
+			<div class="text-xl font-semibold text-slate-800">{{.Title}}</div>
+			<div
+				class="text-lg text-bold font-semibold text-orange-400 text-right capitalize ml-4 cp-list-item__{{.Params.Difficulty}}"
+			>
+				{{.Params.Difficulty}}
+			</div>
+		</div>
+	</div>
+</a>
+{{ end }}

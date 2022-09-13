@@ -15,25 +15,14 @@
 		{{- partial "header.html" . -}}
 		<div class="page-gutter">
 			<h1 class="sm:text-5xl text-white font-bold text-4xl text-left mt-8">
-				{{.Title}}
+				Competitive Programming
 			</h1>
-			<div class="grid grid-cols-1 gap-4 mt-8 mb-8">
-				<!-- Blog Posts -->
-				{{ range .Pages.ByDate.Reverse }}
-				<a href="{{.Permalink}}">
-					<div
-						class="p-4 rounded-lg flex items-center justify-center bg-slate-200"
-					>
-						<img
-							src="/default/leetcode.png"
-							class="rounded-lg h-12 aspect-square mr-4"
-						/>
-						<div class="text-xl text-white font-semibold w-full text-slate-800">
-							{{.Title}}
-						</div>
-					</div>
-				</a>
-				{{ end }}
+			<div class="w-full flex mt-8 flex-wrap">
+				{{ partial "competitive-programming/topic-filters" .}}
+			</div>
+			<div class="grid grid-cols-1 gap-4 mt-12 mb-8">
+				<!-- Competitive Programming Questions -->
+				{{ partial "competitive-programming/list-items.html" . }}
 			</div>
 		</div>
 	</body>
