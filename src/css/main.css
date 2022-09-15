@@ -27,7 +27,7 @@
 
 /* Override the code block background color */
 .markdown pre {
-  background-color: #18181b;
+  background-color: #18181b !important;
 }
 
 .markdown strong {
