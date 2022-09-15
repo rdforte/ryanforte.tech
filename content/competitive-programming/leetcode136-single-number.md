@@ -1,6 +1,5 @@
 +++
 "competitive-programming" = ["show-all", "bit-manipulation"]
-"topics" = ["bit-manipulation", "all"]
 date = "2022-09-12T08:03:10+10:00"
 draft = false
 title = "Leetcode136 Single Number"
@@ -10,7 +9,7 @@ platform = "leetcode"
 
 [Leetcode question 136](https://leetcode.com/problems/single-number/)
 
-This question is very similar to [268 missing number](../268-Missing_Number/readme.md)
+This question is very similar to [Leetcode question 268 missing number](/competitive-programming/leetcode268-missing-number)
 
 We can utilize the Bitwise **XOR** operator **^**
 
