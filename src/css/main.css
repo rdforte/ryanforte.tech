@@ -5,6 +5,7 @@
 @import "./homePage.css";
 @import "./header.css";
 @import "./intro-loader-animation.css";
+@import "./hamburger-bar.css";
 
 @layer components {
   .page-gutter {

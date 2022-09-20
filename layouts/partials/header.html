@@ -13,25 +13,32 @@
 				<a
 					id="nav-bar__home-link"
 					href="/"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
+					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.2s"
 					>Home</a
 				>
 				<a
 					id="nav-bar__blog-link"
 					href="/blog"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
+					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.4s"
 					>Blog</a
 				>
 				<a
 					id="nav-bar__cp-link"
 					href="/competitive-programming/show-all"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation"
+					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.6s"
 					>Competitive</a
 				>
 			</div>
+			<button
+				class="w-9 lg:hidden cursor-pointer flex flex-col justify-between h-6 hamburger"
+			>
+				<div class="w-full h-1 bg-white hamburger__bar-one"></div>
+				<div class="w-full h-1 bg-white hamburger__bar-two"></div>
+				<div class="w-full h-1 bg-white hamburger__bar-three"></div>
+			</button>
 		</div>
 	</div>
 </nav>

@@ -1,0 +1,33 @@
+.hamburger__bar-one.hamburger__bar-one--is-active {
+  transition: 0.4s;
+  transform: rotate(-45deg) translate(-7px, 7px)
+}
+
+
+.hamburger__bar-three.hamburger__bar-three--is-active {
+  transition: 0.4s;
+  transform: rotate(45deg) translate(-6px, -7px)
+}
+
+
+.hamburger__bar-two.hamburger__bar-two--is-active {
+  transition: 0.4s;
+  opacity: 0;
+}
+
+/* .hamburger__bar-one.hamburger__bar-one--is-not-active {
+  transition: 0.4s;
+  transform: rotate(0deg) translate(0px, 0px)
+}
+
+
+.hamburger__bar-three.hamburger__bar-three--is-not-active {
+  transition: 0.4s;
+  transform: rotate(0deg) translate(0px, 0px)
+}
+
+
+.hamburger__bar-two.hamburger__bar-two--is-not-active {
+  transition: 0.4s;
+  opacity: 1;
+} */
