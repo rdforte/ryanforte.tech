@@ -4,7 +4,7 @@
 	<body class="bg-gray-800">
 		<div
 			id="intro-loader"
-			class="h-screen w-screen flex flex-col items-center justify-center bg-yellow-200"
+			class="h-screen w-screen flex flex-col items-center justify-center"
 		>
 			{{ partial "logo-animated" . }}
 		</div>
@@ -13,5 +13,8 @@
 			<div id="content">{{- block "main" . }}{{- end }}</div>
 			{{- partial "footer.html" . -}}
 		</div>
+		<div
+			class="mobile-navigation top-0 left-full w-screen h-screen absolute z-10 bg-zinc-900"
+		></div>
 	</body>
 </html>

@@ -1,4 +1,5 @@
 const hamburgerButton = document.querySelector('.hamburger')
+const slideOutNavigation = document.querySelector('.mobile-navigation')
 
 // hamburgerButton.addEventListener('click', () => {
 // 	document
@@ -25,6 +26,9 @@ hamburgerButton.addEventListener('click', () => {
 		barOneElement.classList.add('hamburger__bar-one--is-active')
 		barTwoElement.classList.add('hamburger__bar-two--is-active')
 		barThreeElement.classList.add('hamburger__bar-three--is-active')
+
+		slideOutNavigation.classList.remove('mobile-navigation--is-not-active')
+		slideOutNavigation.classList.add('mobile-navigation--is-active')
 	} else {
 		barOneElement.classList.add('hamburger__bar-one--is-not-active')
 		barTwoElement.classList.add('hamburger__bar-two--is-not-active')
@@ -33,5 +37,8 @@ hamburgerButton.addEventListener('click', () => {
 		barOneElement.classList.remove('hamburger__bar-one--is-active')
 		barTwoElement.classList.remove('hamburger__bar-two--is-active')
 		barThreeElement.classList.remove('hamburger__bar-three--is-active')
+
+		slideOutNavigation.classList.remove('mobile-navigation--is-active')
+		slideOutNavigation.classList.add('mobile-navigation--is-not-active')
 	}
 })
