@@ -33,6 +33,7 @@
 				>
 			</div>
 			<button
+				id="hamburger"
 				class="w-9 lg:hidden cursor-pointer flex flex-col justify-between h-6 hamburger z-20"
 			>
 				<div
@@ -51,22 +52,23 @@
 		</div>
 	</div>
 	<div
+		id="mobile-navigation-window"
 		class="mobile-navigation top-0 left-full w-screen h-screen absolute z-10 bg-zinc-900 flex flex-col content-center px-5"
 	>
 		<a
-			id="nav-bar__home-link"
+			id="hamburger-bar__home-link"
 			href="/"
 			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 rounded-md w-80 text-center mx-auto mt-auto"
 			>Home</a
 		>
 		<a
-			id="nav-bar__blog-link"
+			id="hamburger-bar__blog-link"
 			href="/blog"
 			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto"
 			>Blog</a
 		>
 		<a
-			id="nav-bar__cp-link"
+			id="hamburger-bar__cp-link"
 			href="/competitive-programming/show-all"
 			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto mb-auto"
 			>Competitive</a
