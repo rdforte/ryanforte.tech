@@ -5,6 +5,8 @@ const barOneElement = document.querySelector('.hamburger__bar-one')
 const barTwoElement = document.querySelector('.hamburger__bar-two')
 const barThreeElement = document.querySelector('.hamburger__bar-three')
 
+const bodyElement = document.getElementsByTagName('body')
+
 // Remove Slide Down animation after initial load of home screen.
 if (barOneElement != null && barTwoElement != null && barThreeElement != null) {
 	barOneElement.addEventListener('animationend', () => {
