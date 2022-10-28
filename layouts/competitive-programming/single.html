@@ -11,7 +11,7 @@
 		<!-- javascript -->
 		<script type="text/javascript" src="/assets/bundle.js" defer></script>
 	</head>
-	<body class="bg-gray-800 relative overflow-x-hidden">
+	<body class="bg-gray-800 relative overflow-x-hidden h-screen">
 		{{- partial "header.html" . -}}
 		<div class="page-gutter pb-4">
 			<h2 class="sm:text-6xl text-4xl text-slate-300 font-bold mt-8">
@@ -20,7 +20,4 @@
 			<div class="markdown">{{.Content}}</div>
 		</div>
 	</body>
-	<!-- Load Header Image -->
-	{{ partial "image-loader" (dict "id" .Params.HeaderImageId "src"
-	.Params.HeaderImage) }}
 </html>

@@ -5,8 +5,6 @@ const barOneElement = document.querySelector('.hamburger__bar-one')
 const barTwoElement = document.querySelector('.hamburger__bar-two')
 const barThreeElement = document.querySelector('.hamburger__bar-three')
 
-const bodyElement = document.getElementsByTagName('body')
-
 // Remove Slide Down animation after initial load of home screen.
 if (barOneElement != null && barTwoElement != null && barThreeElement != null) {
 	barOneElement.addEventListener('animationend', () => {
@@ -17,6 +15,7 @@ if (barOneElement != null && barTwoElement != null && barThreeElement != null) {
 }
 
 hamburgerButton.addEventListener('click', () => {
+	document.body.scroll(0, 0)
 	if (barOneElement.classList.contains('hamburger__bar-one--is-not-active')) {
 		barOneElement.classList.remove('hamburger__bar-one--is-not-active')
 		barTwoElement.classList.remove('hamburger__bar-two--is-not-active')
@@ -28,6 +27,8 @@ hamburgerButton.addEventListener('click', () => {
 
 		slideOutNavigation.classList.remove('mobile-navigation--is-not-active')
 		slideOutNavigation.classList.add('mobile-navigation--is-active')
+
+		document.body.style.overflow = 'hidden'
 	} else {
 		barOneElement.classList.add('hamburger__bar-one--is-not-active')
 		barTwoElement.classList.add('hamburger__bar-two--is-not-active')
@@ -39,5 +40,7 @@ hamburgerButton.addEventListener('click', () => {
 
 		slideOutNavigation.classList.remove('mobile-navigation--is-active')
 		slideOutNavigation.classList.add('mobile-navigation--is-not-active')
+
+		document.body.style.overflow = null
 	}
 })
