@@ -6,7 +6,9 @@
   "scripts": {
     "webpack:watch": "webpack --mode=development --watch",
     "hugo": "hugo server --disableFastRender --verbose",
+    "hugo:bindip": "hugo server --bind 0.0.0.0 --baseURL http://192.168.1.100:1313",
     "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
+    "dev:bindip": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo:bindip",
     "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public",
     "start:ci": "NODE_ENV=production webpack --mode=production && hugo server",
     "test": "npx playwright test"

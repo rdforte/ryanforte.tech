@@ -21,3 +21,6 @@ compress-blog:
 # compress will compress all png images for the blog specified.
 compress-cp:
 	./scripts/compressCpImages
+
+get-ip:
+	ifconfig | grep "inet " | grep -v 127.0.0.1
