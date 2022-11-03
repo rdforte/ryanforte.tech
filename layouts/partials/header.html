@@ -13,23 +13,30 @@
 				<a
 					id="nav-bar__home-link"
 					href="/"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
+					class="text-gray-300 hover:text-red-400 active:text-red-500 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.2s"
 					>Home</a
 				>
 				<a
 					id="nav-bar__blog-link"
 					href="/blog"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
+					class="text-gray-300 hover:text-red-400 active:text-red-500 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.4s"
 					>Blog</a
 				>
 				<a
 					id="nav-bar__cp-link"
 					href="/competitive-programming/show-all"
-					class="text-gray-300 hover:text-red-400 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
+					class="text-gray-300 hover:text-red-400 active:text-red-500 px-3 py-2 text-sm font-medium slide-down-animation hidden lg:block"
 					style="animation-delay: 0.6s"
 					>Competitive</a
+				>
+				<a
+					href="/default/RyanForte_SoftwareEngineer_Resume.pdf"
+					download
+					class="text-gray-300 border-gray-300 hover:text-red-400 hover:border-red-400 active:text-rose-500 active:border-rose-500 py-2 px-4 border text-sm rounded shadow slide-down-animation hidden lg:block"
+					style="animation-delay: 0.8s"
+					>Resume</a
 				>
 			</div>
 			<button
@@ -56,22 +63,25 @@
 		class="mobile-navigation top-0 left-full w-screen h-screen absolute z-10 bg-zinc-900 flex flex-col content-center px-5"
 	>
 		<a
-			id="hamburger-bar__home-link"
 			href="/"
-			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 rounded-md w-80 text-center mx-auto mt-auto"
+			class="text-gray-300 active:text-gray-500 active:bg-gray-800 p-5 text-md font-medium lg:block bg-zinc-700 rounded-md w-80 text-center mx-auto mt-auto"
 			>Home</a
 		>
 		<a
-			id="hamburger-bar__blog-link"
 			href="/blog"
-			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto"
+			class="text-gray-300 active:text-gray-500 active:bg-gray-800 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto"
 			>Blog</a
 		>
 		<a
-			id="hamburger-bar__cp-link"
 			href="/competitive-programming/show-all"
-			class="text-gray-300 hover:text-red-400 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto mb-auto"
+			class="text-gray-300 active:text-gray-500 active:bg-gray-800 p-5 text-md font-medium lg:block bg-zinc-700 mt-3 rounded-md w-80 text-center mx-auto"
 			>Competitive</a
+		>
+		<a
+			href="/default/RyanForte_SoftwareEngineer_Resume.pdf"
+			download
+			class="text-gray-300 border text-red-400 border-red-400 active:text-rose-500 active:border-rose-500 p-5 text-md font-medium lg:block mt-3 rounded-md w-80 text-center mx-auto mb-auto"
+			>Resume</a
 		>
 	</div>
 </nav>
