@@ -32,4 +32,5 @@ custom_js = ["static/assets/bundle.js"]
     # "trie",
     # "two-pointers",
     # "union-find"
+    "other"
     ]
