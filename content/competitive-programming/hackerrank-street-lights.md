@@ -9,6 +9,9 @@ platform = "hackerrank"
 
 [HackerRank Street Lights question](https://www.hackerrank.com/contests/algoholic-contest-1/challenges/street-lights/problem)
 
+I just want to give a shout out to [Clayton Herbst](https://www.linkedin.com/in/clayton-herbst/) who helped solve this question
+during our weekly competitive programming white board session. 🤜🏻🤛🏻 _- fist bump_
+
 In order to solve this question we must first try and understand what the question is asking of us.
 
 We have a road and along this road we have a number of street lights with each street light lighting up a number
@@ -24,7 +27,7 @@ __-1, 0, 1, 2, 3, 5, 6, 7, 8, 9__ therefore the total number of points our stree
 
 There are a few edge cases which we must consider.
 
-Firstly what if two street lights are on the same point?
+What if two street lights are on the same point?
 
 ![street light same point](/competitive-programming/images/hackerrank-street-lights/street-light-question-same-point.png)
 
