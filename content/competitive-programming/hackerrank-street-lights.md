@@ -14,11 +14,10 @@ during our weekly competitive programming white board session. 🤜🏻🤛🏻 
 
 In order to solve this question we must first try and understand what the question is asking of us.
 
-We have a road and along this road we have a number of street lights with each street light lighting up a number
-of points either side of it. Our job is to figure out how many points do these street lights light up in total.
-It's usually best to draw a diagram to represent the problem so lets do that.
+We have a road and along this road, we have several street lights with each street light lighting up numerous points on either side of it. Our job is to figure out how many points these street lights light up in total.
+It's usually best to draw a diagram to represent the problem so let's do that.
 
-As an example if we have 2 street lights which light up 2 points either side. We can represent this as the following.
+As an example, if we have 2 street lights which light up 2 points on either side. We can represent this as the following.
 
 ![street light question](/competitive-programming/images/hackerrank-street-lights/street-light-question.png)
 
@@ -34,7 +33,7 @@ What if two street lights are on the same point?
 Because street lights __1__ and __2__ light up the same points we still only include the number of points which are lit up
 and not the total number of points each street light lights up. Therefore are result here is still __10__
 
-What if we have two street which are not located on the same point but but either light up the same points?
+What if we have two street lights which are not located on the same point but either light up the same points?
 
 ![street light next to each other](/competitive-programming/images/hackerrank-street-lights/street-lights-nexto.png)
 
@@ -53,8 +52,8 @@ we only include these points once which leaves the points lit up to be __-1, 0, 
 How I have approached this question may be different to how others have approached this question. Though this approach will get
 you 30/30 points on HackerRank.
 
-If we line up all of our street lights side by side and only calculate the light of the current street pole up to the light
-of the next street pole then this will cater for any overlapping light.
+If we line up all of our street lights side by side, and only calculate the left most light of the current street pole up to the left most light
+of the next street pole, then this will cater for any overlapping light.
 
 ![street light next to each other](/competitive-programming/images/hackerrank-street-lights/street-light-solution.png)
 
@@ -64,11 +63,11 @@ At each iteration of the street poles we can then calculate the difference betwe
 
 If we then add these together we get __7__ but hold up wait a second shouldn't the answer be __8__ 🧐
 
-We know that for the difference of the bounds of each light we must also include the point for the light pole itself.
+We know that for the difference in the bounds of each light we must also include the point for the light pole itself.
 In which case we have two lights. So then would we not add 2? If the lights were not overlapping or touching then yes we
-could include each light poles point in the total number of points but because in our example above they overlap so essentially
-its as if they were one light pole. So to overcome this we can keep track of the total number of light poles and each time
-one light poles light overlaps another light poles light we can deduct one from the total number of points.
+could include each light pole point in the total number of points but because in our example above they overlap so essentially
+it's as if they were one light pole. So to overcome this we can keep track of the total number of light poles and each time
+one light pole's light overlaps another light pole's light we can deduct one from the total number of points.
 
 ### Solution
 
