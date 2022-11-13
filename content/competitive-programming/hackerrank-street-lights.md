@@ -1,5 +1,5 @@
 +++
-"competitive-programming" = ["show-all"]
+"competitive-programming" = ["show-all", "other"]
 date = "2022-11-13T08:36:43+11:00"
 draft = false
 title = "HackerRank Street Lights"
