@@ -19,7 +19,7 @@ custom_js = ["static/assets/bundle.js"]
     # "bucket-sort",
     "dfs",
     # "design",
-    # "dynamic-programming",
+    "dynamic-programming",
     # "fast-and-slow-pointers",
     "graph",
     # "heap",
@@ -32,5 +32,7 @@ custom_js = ["static/assets/bundle.js"]
     # "trie",
     # "two-pointers",
     # "union-find"
-    "other"
+    "linked-list",
+    "math",
+    # "other"
     ]

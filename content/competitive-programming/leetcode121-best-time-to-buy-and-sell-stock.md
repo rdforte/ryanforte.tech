@@ -1,5 +1,5 @@
 +++
-"competitive-programming" = ["show-all", "other"]
+"competitive-programming" = ["show-all", "dynamic-programming"]
 date = "2022-11-06T09:42:55+11:00"
 draft = false
 title = "Leetcode121 Best Time to Buy and Sell Stock"

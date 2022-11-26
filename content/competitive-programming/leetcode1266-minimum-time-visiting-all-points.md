@@ -1,5 +1,5 @@
 +++
-"competitive-programming" = ["show-all", "other"]
+"competitive-programming" = ["show-all", "math"]
 date = "2022-11-20T08:49:22+11:00"
 draft = false
 title = "Leetcode1266 Minimum Time Visiting All Points"
