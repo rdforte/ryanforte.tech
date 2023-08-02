@@ -26,7 +26,7 @@ custom_js = ["static/assets/bundle.js"]
     # "in-place-reversal-linked-list",
     # "intervals",
     # "quick-select",
-    # "sliding-window",
+    "sliding-window",
     # "sorting",
     # "topological-sort",
     # "trie",

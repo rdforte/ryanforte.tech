@@ -23,6 +23,9 @@ npm install
 ```
 npm run dev
 ```
+    
+**View the application running at [localhost:1313](http://localhost:1313/)**
+
 This will run webpack in watch mode along with hugo server in parallel.
 webpack in watch mode will polyfill our Javascript and extract our CSS from tailwind.
 webpack will output the transpiled js and css into /static/assets. These files are
