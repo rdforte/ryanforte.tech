@@ -24,8 +24,8 @@ const config = {
 	},
 	webServer: {
 		command: 'npm run start:ci',
-		url: 'http://localhost:1313',
-		timeout: 240 * 1000, // 2 minutes
+		port: 1313,
+		timeout: 120 * 1000, // 2 minutes
 		reuseExistingServer: !process.env.CI
 	},
 	/* Run tests in files in parallel */
