@@ -9,7 +9,7 @@ Webpack is needed for the following.
 ---
 #### Get Started.
 **1. You will need the following installed**
-- [Nodejs](https://nodejs.org/en/)
+- [Nodejs V18](https://nodejs.org/en/)
 - [Hugo CLI](https://gohugo.io/getting-started/installing/)
 
 **2. You will need to install dependencies**

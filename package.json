@@ -10,7 +10,7 @@
     "dev": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo",
     "dev:bindip": "NODE_ENV=development npm-run-all --parallel webpack:watch hugo:bindip",
     "build": "NODE_ENV=production webpack --mode=production && hugo --destination ./public",
-    "start:ci": "NODE_ENV=production webpack --mode=production && hugo server",
+    "start:ci": "NODE_ENV=production webpack --mode=production && hugo server -p 1313",
     "test": "npx playwright test"
   },
   "keywords": [],
