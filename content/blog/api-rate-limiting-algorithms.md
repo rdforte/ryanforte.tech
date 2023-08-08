@@ -2,7 +2,7 @@
 tags = []
 date = "2023-08-08T09:16:50+10:00"
 draft = false
-title = "The Art and Science of API Rate Limiting Algorithms"
+title = "The Art and Science of API Rate Limiting Algorithms 🧪"
 coverImage = "/blog/images/api-rate-limiting-algorithms/cover.png"
 coverImageId = "api-rate-limiting-algorithms-cover"
 headerImage = "/blog/images/api-rate-limiting-algorithms/header.png"
