@@ -43,11 +43,11 @@ We specify a bucket which contains a set number of tokens (capacity). Tokens are
 
 Every time a request flows through our API we check to see if there are enough tokens in the bucket. If there are enough tokens in the bucket then we process the request.
 
-![token bucket 1](/blog/images/api-rate-limiting-algorithms/token-bucket-2.png)
+![token bucket 2](/blog/images/api-rate-limiting-algorithms/token-bucket-2.png)
 
 If the bucket does not have enough tokens in it then we reject the request and return an error.
 
-![token bucket 1](/blog/images/api-rate-limiting-algorithms/token-bucket-3.png)
+![token bucket 3](/blog/images/api-rate-limiting-algorithms/token-bucket-3.png)
 
 Usually a token bucket requires 2 parameters. 
 - Bucket size.
@@ -56,18 +56,39 @@ Usually a token bucket requires 2 parameters.
 For example, we might have a bucket with a size of 5 and a refill rate of 2 tokens per second.
 Three requests hit our API at 10:00:00 AM whereby we deduct 3 tokens from our bucket leaving a total of 2 tokens in the bucket. We then proceed to process the requests.
 
-![token bucket 1](/blog/images/api-rate-limiting-algorithms/token-bucket-4.png)
+![token bucket 4](/blog/images/api-rate-limiting-algorithms/token-bucket-4.png)
 
 At 10:00:01 we add 2 extra tokens to the bucket.
 
-![token bucket 1](/blog/images/api-rate-limiting-algorithms/token-bucket-5.png)
+![token bucket 5](/blog/images/api-rate-limiting-algorithms/token-bucket-5.png)
 
 Just after adding the 2 extra tokens to the bucket, we get an influx of requests within the same second.
 
-![token bucket 1](/blog/images/api-rate-limiting-algorithms/token-bucket-6.png)
+![token bucket 6](/blog/images/api-rate-limiting-algorithms/token-bucket-6.png)
 
 **Pros:** The token bucket is a fairly simple algorithm to implement and allows for short bursts of traffic.
 
 **Cons:** It can be hard to fine tune this algorithm as we only have the bucket size and refill rate to go off.
 
+### Leaking Bucket
+The Leaking Bucket algorithm is very similar to that of the Token bucket except we swap out the bucket for a FIFO (First in First out) queue.
+We then consume the requests from the queue at a fixed rate.
+
+![leaking bucket 1](/blog/images/api-rate-limiting-algorithms/leaking-bucket-1.png)
+
+If requests are added to the queue faster than the rate which we can process the requests from the queue then we drop the request and return an error.
+
+![leaking bucket 2](/blog/images/api-rate-limiting-algorithms/leaking-bucket-2.png)
+
+The Leaking bucket algorithm usually takes two parameters.
+- Queue size.
+- Outflow rate.
+
+The queue size is as expressed above where we can only fit nine items in the queue. Any more than nine items in the queue and we discard the request and return an error.
+The outflow rate is usually how many request we can process at a specified rate usually seconds.
+
+**Pros:** Requests can be processed at a fixed rate which is ideal for throttling inbound requests and a stable outflow is needed.
+**Cons:** A burst in traffic if not catered for by the process rate will cause requests to be dropped therefore making this algorithm hard to tune.
+
+### Fixed Window Counter
 
