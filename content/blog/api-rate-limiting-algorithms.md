@@ -102,8 +102,37 @@ For example, we might want a window to be 1 second and have a max limit of 10 re
 There is a major problem which comes along with using this algorithm. For example, if we allowed a max of 10 requests per 1-minute window, there is a potential that a burst in
 traffic at the edges of the window will actually cause more requests to be allowed through than the expected max requests per 1-minute window size.
 
-![fixed window counter 1](/blog/images/api-rate-limiting-algorithms/fixed-window-counter-2.png)
+![fixed window counter 2](/blog/images/api-rate-limiting-algorithms/fixed-window-counter-2.png)
 
 **Pros:** Fairly simple algorithm to understand and implement.
 
 **Cons:** A spike in traffic at the edges of the window can cause more requests through than our intended capacity, so this will have to be taken into account.
+
+### Sliding Window Log
+The Fixed Window Counter algorithm has a major flaw whereby it can let through more requests as intended if those requests are on the edges of the window.
+The Sliding Window Log algorithm helps to address this issue.
+
+As requests flow through our API we allocate a timestamp to the request and keep track of it along with the other request timestamps. 
+For example if we allow a maximum of 5 requests per 60 seconds then this might look like the below:
+
+A new request flows in and there are no other timestamps that we are keeping track of, so we create a timestamp for the new request and keep track of it.
+
+![sliding window log 1](/blog/images/api-rate-limiting-algorithms/sliding-window-1.png)
+
+A few more requests flow in. We compare the timestamp of the current requests to the timestamp of the first request. We can see that they all lie within a time period
+of 60 seconds, so we process them.
+
+![sliding window log 2](/blog/images/api-rate-limiting-algorithms/sliding-window-2.png)
+
+Another request then flows in which is within the intended time period but exceeds the number of allowed requests, so we reject it.
+
+![sliding window log 3](/blog/images/api-rate-limiting-algorithms/sliding-window-3.png)
+
+A new request flows through our API, but we can see that this request exceeds the 60-second timeframe when compared to the first, second and third timestamp. We drop the first 3 timestamps therefore leaving us with a total of 4 
+timestamps including the current request which therefore leaves us with less than 5 requests within the valid timeframe. As a result we can process this request.
+
+![sliding window log 4](/blog/images/api-rate-limiting-algorithms/sliding-window-4.png)
+
+**Pros:** Very accurate as the window moves with the timestamps therefore fixing the issue that Fixed Window Counter algorithm had. 
+
+**Cons:** Can consume more memory as we still need to keep track of the timestamps for rejected requests.
