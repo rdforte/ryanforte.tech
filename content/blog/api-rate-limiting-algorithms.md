@@ -84,11 +84,26 @@ The Leaking bucket algorithm usually takes two parameters.
 - Queue size.
 - Outflow rate.
 
-The queue size is as expressed above where we can only fit nine items in the queue. Any more than nine items in the queue and we discard the request and return an error.
+The queue size is as expressed above where we can only fit 9 items in the queue. Any more than 9 items in the queue and we discard the request and return an error.
 The outflow rate is usually how many request we can process at a specified rate usually seconds.
 
 **Pros:** Requests can be processed at a fixed rate which is ideal for throttling inbound requests and a stable outflow is needed.
+
 **Cons:** A burst in traffic if not catered for by the process rate will cause requests to be dropped therefore making this algorithm hard to tune.
 
 ### Fixed Window Counter
 
+This approach takes a different direction to the two previous algorithms which had a single bucket or queue.
+In the case of the Fixed Window Counter algorithm we divide the time into windows and allocate a counter to each window. 
+For example, we might want a window to be 1 second and have a max limit of 10 requests per second.
+
+![fixed window counter 1](/blog/images/api-rate-limiting-algorithms/fixed-window-counter-1.png)
+
+There is a major problem which comes along with using this algorithm. For example, if we allowed a max of 10 requests per 1-minute window, there is a potential that a burst in
+traffic at the edges of the window will actually cause more requests to be allowed through than the expected max requests per 1-minute window size.
+
+![fixed window counter 1](/blog/images/api-rate-limiting-algorithms/fixed-window-counter-2.png)
+
+**Pros:** Fairly simple algorithm to understand and implement.
+
+**Cons:** A spike in traffic at the edges of the window can cause more requests through than our intended capacity, so this will have to be taken into account.
