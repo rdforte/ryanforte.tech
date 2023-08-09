@@ -136,3 +136,68 @@ timestamps including the current request which therefore leaves us with less tha
 **Pros:** Very accurate as the window moves with the timestamps therefore fixing the issue that Fixed Window Counter algorithm had. 
 
 **Cons:** Can consume more memory as we still need to keep track of the timestamps for rejected requests.
+
+### Sliding Window Counter
+The Sliding Window Counter algorithm seamlessly blends the strengths of both the Fixed Window Counter and Sliding Window Counter approaches. 
+We can take on this algorithm from various angles, and one approach elegantly employs the formula outlined below:
+
+```text
+C = Requests in current window
+P = Requests in the previous window
+O = Overlap percentage of the rolling window and previous window
+
+C  + P * O
+```
+
+An example of how this might work is lets say we allow 10 requests per minute.
+
+![sliding window counter 1](/blog/images/api-rate-limiting-algorithms/sliding-window-counter-1.png)
+
+Based on the above diagram and formula we can calculate the current rate limit:
+```text
+7 + 4 * 0.36 = 8.44
+```
+
+We can then decide to either round down to 8 or round up to 9. Either way we are within our rate limit threshold of 10 requests.
+For the sake of this example lets assume that we are rounding down.
+
+If we decide to add a few more requests to the previous window and then recalculate the rate limit.
+
+![sliding window counter 2](/blog/images/api-rate-limiting-algorithms/sliding-window-counter-2.png)
+
+```text
+7 + 8 * 0.53 = 11.24
+```
+
+You can see that we now have 11 requests which has exceeded our rate limit, so we reject the request.
+
+**Pros:** Good for smoothing out spikes in traffic as the calculation is based on the average rate of the previous window.
+
+**Cons:** Is not accurate and is just an approximation because it assumes requests in the previous window are evenly distributed.
+Based on the [cloudflare article: How we built rate limiting capable of scaling to millions of domains](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/) the Sliding Window Counter
+algorithm is still very accurate, as an analysis on 400 million requests from 270,000 distinct sources show:
+- 0.003% of requests have been wrongly allowed or rate limited.
+- An average difference of 6% between real rate and the approximate rate.
+
+### Conclusion
+There you have it folks API rate limiting algorithms play a pivotal role in maintaining the equilibrium between efficient service delivery and safeguarding system integrity. 
+By intelligently controlling the pace at which requests are processed, these algorithms prevent undue strain on resources, optimize operational costs, and ensure a fair and reliable user experience. 
+Whether employing straightforward token buckets, leaky buckets, or more advanced techniques, the careful implementation of rate limiting strategies empowers organizations to strike an optimal balance between accommodating user demands and preserving the stability and responsiveness of their API-driven services. 
+As digital interactions continue to proliferate, the judicious use of API rate limiting algorithms emerges as an essential tool in sustaining the resilience and responsiveness of modern interconnected systems.
+
+### References
+[System Design Interview – An insider's guide](https://www.amazon.com/System-Design-Interview-insiders-Second/dp/B08CMF2CQF/ref=sr_1_2?crid=1FBRX02EHZ4IU&keywords=byte+byte+go+system+design&qid=1691540985&sprefix=byte+byte+go%2Caps%2C302&sr=8-2)
+
+[4 Rate Limit Algorithms Every Developer Should Know](https://betterprogramming.pub/4-rate-limit-algorithms-every-developer-should-know-7472cb482f48)
+
+[System Design — Rate limiter and Data modelling](https://medium.com/@saisandeepmopuri/system-design-rate-limiter-and-data-modelling-9304b0d18250)
+
+[Twitter api rate limits](https://developer.twitter.com/en/docs/twitter-api/rate-limits)
+
+[Google docs rate limits](https://developers.google.com/docs/api/limits)
+
+[Meta rate limits](https://developers.facebook.com/docs/graph-api/overview/rate-limiting/)
+
+[How we built rate limiting capable of scaling to millions of domains](https://blog.cloudflare.com/counting-things-a-lot-of-different-things/)
+
+[Throttle API requests for better throughput](https://docs.aws.amazon.com/apigateway/latest/developerguide/api-gateway-request-throttling.html)
