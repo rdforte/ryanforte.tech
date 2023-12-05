@@ -14,5 +14,5 @@ test('should display the correct heading and subheading', async ({ page }) => {
 	const locator = page.locator('body')
 
 	await expect(locator).toHaveText(/ryan forte/i)
-	await expect(locator).toHaveText(/software developer/i)
+	await expect(locator).toHaveText(/software engineer/i)
 })
