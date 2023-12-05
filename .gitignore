@@ -8,3 +8,5 @@ public
 /playwright/.cache/
 
 /scripts/tempCodeRunnerFile.cpp
+
+.DS_Store
