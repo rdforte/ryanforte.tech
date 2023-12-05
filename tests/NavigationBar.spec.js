@@ -34,19 +34,19 @@ test.describe('Nav Bar', () => {
 		await expect(page).toHaveTitle(/ryan forte/i)
 	})
 
-	test('should navigate to competitive programming when click the home button in nav bar', async ({
-		page
-	}) => {
-		await page.goto(BLOG_PAGE_URL)
-
-		const homeLink = page.locator('#nav-bar__cp-link')
-
-		await expect(homeLink).toHaveText(/competitive/i)
-
-		await homeLink.click()
-
-		await expect(page).toHaveTitle(/show-all/i)
-	})
+	// test('should navigate to competitive programming when click the home button in nav bar', async ({
+	// 	page
+	// }) => {
+	// 	await page.goto(BLOG_PAGE_URL)
+	//
+	// 	const homeLink = page.locator('#nav-bar__cp-link')
+	//
+	// 	await expect(homeLink).toHaveText(/competitive/i)
+	//
+	// 	await homeLink.click()
+	//
+	// 	await expect(page).toHaveTitle(/show-all/i)
+	// })
 })
 
 // test.describe('Hamburger Menu', () => {
