@@ -3,27 +3,34 @@
 This project uses [HUGO](https://gohugo.io/) with [Webpack](https://webpack.js.org/).
 
 Webpack is needed for the following.
+
 - Extract [Tailwind CSS](https://tailwindcss.com/)
 - Transpile and Polyfill Javascript
 
 ---
+
 #### Get Started.
+
 **1. You will need the following installed**
+
 - [Nodejs V18](https://nodejs.org/en/)
 - [Hugo CLI](https://gohugo.io/getting-started/installing/)
 
 **2. You will need to install dependencies**
 run the following command:
+
 ```
 npm install
 ```
+
 ---
 
 #### Run Development Server
+
 ```
 npm run dev
 ```
-    
+
 **View the application running at [localhost:1313](http://localhost:1313/)**
 
 This will run webpack in watch mode along with hugo server in parallel.
@@ -39,15 +46,30 @@ but only those we need.
 
 ---
 
+#### Run Tests
+
+Run the development server then run:
+
+```
+npm run test
+```
+
+---
+
 #### Compressing Blog images
+
 Compressing blog images requires:
 [pngquant](https://pngquant.org)
 
 you can download pngquant via homebrew
+
 ```
  brew install pngquant
 ```
+
 To compress blog images. From your root directory run the following command:
+
 ```
 make compress
 ```
+
