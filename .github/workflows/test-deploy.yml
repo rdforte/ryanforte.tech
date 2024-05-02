@@ -8,8 +8,8 @@ on:
 jobs:
   test:
     # JOB TEST =====================================================================
-    timeout-minutes: 20
-    runs-on: macos-latest
+    timeout-minutes: 10
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-node@v3

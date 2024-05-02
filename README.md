@@ -48,8 +48,6 @@ but only those we need.
 
 #### Run Tests
 
-Run the development server then run:
-
 ```
 npm run test
 ```
