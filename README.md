@@ -71,3 +71,44 @@ To compress blog images. From your root directory run the following command:
 make compress
 ```
 
+---
+
+#### Debugging Failed Pipeline
+
+The most common issues i've encountered with failed pipeline builds have been due to either:
+
+- hugo version misalignment
+- macOS runner versions
+- package misalignments
+
+To update the Hugo version which vercel uses to build the app:
+
+```
+Project Settings -> Environment Variables
+```
+
+Update the `HUGO_VERSION` environment variable to be in alignment with what you currently use on your local.
+
+The MacOS runner versions are defined in [github workflows](.github/workflows/test-deploy.yml)
+
+To update all github packages run:
+
+```
+ncu
+```
+
+To get all the latest package versions then
+
+```
+ncu -u
+```
+
+To bump all versions in package.json then
+
+```
+npm i
+```
+
+To install all the latest packages.
+
+---
