@@ -72,7 +72,7 @@ spec:
 ```
 
 In ECS the CPU Period is locked into 100ms. View ECS CPU Period configuration [here](https://github.com/aws/amazon-ecs-agent/blob/d68e729f73e588982dc2189a1c618c18c47c931b/agent/api/task/task_linux.go#L39).
-In kubernetes the administrator can configure the `cpu.cfs_period_us` which also has a default value of 100ms.
+In kubernetes the administrator can configure the **cpu.cfs_period_us** which also has a default value of 100ms.
 
 The CPU Period refers to the time period in microseconds, where the kernel will do some calculations to figure out the allotted amount of CPU time to provide each task.
 In the above configuration this would be 4 vCPU’s multiplied by 100ms (cpu period) giving the task 400ms (4 x 100ms).
@@ -96,7 +96,7 @@ If our Go application has an average latency of 50ms this now means a request to
 ## Solution
 
 In Kubernetes this issue is quite easy to solve as we have [uber automaxprocs](https://github.com/uber-go/automaxprocs) package to solve this issue.
-Though automaxprocs will not work for ECS [uber-go/automaxprocs#66](https://github.com/uber-go/automaxprocs/issues/66) because the cgroup _cpu.cfs_quota_us_ is set to -1 🥲.
+Though automaxprocs will not work for ECS [uber-go/automaxprocs#66](https://github.com/uber-go/automaxprocs/issues/66) because the cgroup **cpu.cfs_quota_us** is set to -1 🥲.
 That is why I have built [gomaxecs](https://github.com/rdforte/gomaxecs/), which is a package to help address this issue.
 
 ## Wrap up
