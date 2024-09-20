@@ -88,7 +88,7 @@ Now Go is NOT CFS aware [golang/go#33803](https://github.com/golang/go/issues/33
 ![8 threads](/blog/images/go-in-containers-cfs-issue/8-threads.png)
 
 Now we have our Go application using all 8 cores resulting in 8 threads executing go routines. After 50ms of execution we reach our CPU
-quota 50ms _ 8 threads giving us 400ms (8 _ 50ms). As a result CFS will throttle our CPU resources, meaning that no more CPU resources will
+quota 50ms x 8 threads giving us 400ms (8 x 50ms). As a result CFS will throttle our CPU resources, meaning that no more CPU resources will
 be allocated till the next period. This means our application will be sitting idle doing nothing for a full 50ms.
 
 If our Go application has an average latency of 50ms this now means a request to our service can take up to 150ms to complete, which is a 300% increase in latency.
