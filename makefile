@@ -18,7 +18,7 @@ cp:
 compress-blog:
 	./scripts/compressBlogImages
 
-# compress will compress all png images for the blog specified.
+# compress will compress all png images for the competitive programming blog specified.
 compress-cp:
 	./scripts/compressCpImages
 
