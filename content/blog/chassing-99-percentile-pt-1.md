@@ -69,7 +69,36 @@ When we spin up a new Go application the runtime will reach out to the machine (
 many cores there are. It will then use this number to create its own internally managed logical processors to represent
 these cores via struct [p](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L632-L757)
 which we will refer to as P. For every P or logical processor that the scheduler manages it
-will own its own OS Thread or machine Thread which is controlled by by struct 
+will own its own OS Thread or machine Thread which is controlled by by struct
 [m](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L528-L630), which we will refer to as M.
 The struct m holds a reference to the current goroutine G and the current logical processor P if the M is executing
 go code.
+
+The best way to think about the P is that it acts as the middle man or bridge between our go application and the OS.
+
+![P Bridge](/blog/images/chassing-99-percentile-pt-1/p_bridge.png)
+
+Now the Go scheduler is responsible for the orchestration of goroutines which are managed my struct g, which we will
+refer to as G. So what the scheduler will do is take these goroutines (G’s) and assign them a P where the P will then
+run the G on an M (machine thread). This means that for each logical processor P we can have at most 1 M and for each M
+it can be running at most 1 G. Its a 1:1:1 ratio. This is referred to as the _GMP Model_.
+
+![GMP Model](/blog/images/chassing-99-percentile-pt-1/PMG.png)
+
+For example if I were to bring up the system report of my MacBook and inspect the number of cores, you would see
+that I have a total of 8 cores. This would result in my go application having a total of 8 P’s there
+by allowing me to run 8 goroutines in parallel. If your a coffee fan thats kind of like having 8 gophers all
+making coffee at the same time!!!
+
+![Gopher Coffee](/blog/images/chassing-99-percentile-pt-1/the_gopher_bar.png)
+
+Goroutines are similar to OS Threads in the sense that like OS threads which can be context switched on/off a core a
+goroutine can be context switched on/off a M. Though a goroutines lifecycle is much simpler than an OS thread and it
+can be in one of 3 states:
+
+- **Executing** → The goroutine has been placed on a M and is executing its instructions.
+- **Runnable** → The goroutine is waiting to be in an executing state
+- **Waiting** → The goroutine has been moved off the M and is placed in a waiting state. This usually happens when the
+  goroutine has to perform some IO or synchronisation like acquiring a mutex.
+
+![Goroutine States](/blog/images/chassing-99-percentile-pt-1/goroutine_states.png)
