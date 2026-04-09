@@ -5,6 +5,7 @@ env:
 on:
   push:
     branches: [main]
+  workflow_dispatch: # Allow manual trigger of workflow.
 jobs:
   test:
     # JOB TEST =====================================================================
