@@ -54,7 +54,7 @@ clarity will hopefully give you the technical depth required to solve the kind
 of complex problems that remain unreachable without a deep understanding of
 these systems.
 
-## A look under the hood - The Go Scheduler
+## A look under the hood - The Go Scheduler 🏎️
 
 ![User Space](/blog/images/chassing-99-percentile-pt-1/you_are_in_user_space.png)
 
@@ -144,6 +144,8 @@ it will try to recycle an old goroutine from the free list otherwise it will
 spin up a new one. This recycling process ♻️ is what makes goroutines so cheap
 to create!
 
+![Goroutine Recycle](/blog/images/chassing-99-percentile-pt-1/recycle_goroutines.png)
+
 Now if a goroutine is the main path of execution and if your spinning up
 multiple G’s more than the num are available then what happens to those G’s?
 Well short answer is queueing.
@@ -158,3 +160,152 @@ the adding and removing of goroutines in constant time O(1) without the need to
 shift the array.
 
 ![Goroutine scheduler queue](/blog/images/chassing-99-percentile-pt-1/golang_scheduler_queue.png)
+
+So what happens in the case above where M1 has moved the G off the OS Thread and
+doesn’t have a G to run? The answer is stealing! The go scheduler is referred to
+as a work stealing scheduler. What this means is that if an M is free then the P
+can look out to the global queue and other P’s local queues and if it sees a G
+in either of these queues it can steal it and place it on it’s M. This allows
+for an under-utilised P to find work.
+
+![Gopher stealing G's from P Houses](/blog/images/chassing-99-percentile-pt-1/gopher_steeling_p.png)
+
+Lastly in the early days of Go prior to Go 1.14 if a goroutine had a tight loop
+performing cpu bound work (i’ll touch on cpu bound work later) then the thread
+would hold on to this goroutine until all the work was completed there by
+creating a backlog of goroutines which had nothing to do but sit idle waiting
+for this long cpu bound task to complete. Us Gophers could get around this by
+using
+[runtime.Gosched()](https://github.com/golang/go/blob/go1.24.0/src/runtime/proc.go#L358-L365)
+in the body of the loop though this was very tedious and error prone and did
+have some perf issues. More details on this here →
+[runtime: tight loops should
+be preemptib le #10958](https://github.com/golang/go/issues/10958).
+
+Though in Go 1.14 the Go team decided to move away from a cooperative scheduler
+and instead moved to a preemptive scheduler which solved a lot of these issues.
+At a high level Go runs a daemon on a dedicated thread M called sysmon (system
+monitor) which is not attached to any P. When sysmon finds a goroutine that has
+been running for longer than 10ms as defined by
+[forcePreemptNS](https://github.com/golang/go/blob/356b87fa7bbba02debea59d2d03e1eca1750ccb6/src/runtime/proc.go#L6658)
+it sends a [tgkill](https://man7.org/linux/man-pages/man2/tgkill.2.html) signal
+(the name is misleading. It does no killing just sends a signal to the process
+✉️) to the M running the goroutine. The goroutine will then be suspended and put
+into the global run queue where it will be later picked back up by a P. This
+then frees up other goroutines to do work ensuring a fairer balance of goroutine
+time on the OS Thread.
+
+## Go's I/O Model 📬
+
+To understand how Go handles IO we need to take a look at _blocking_,
+_non-blocking_ and _multiplexing IO_.
+
+With your typical blocking IO operations a thread will suspend or pause until
+the system is ready with the requested data. On the other hand non-blocking IO
+does NOT suspend and the Linux Kernel will return the requested data if its
+there or an error _EAGAIN_ or _EWOULDBLOCK_ which are two error codes that share
+the same value as outlined by
+[POSIX.1-2001](https://man7.org/linux/man-pages/man3/errno.3.html#:~:text=POSIX.1%2D2001%5C%5C)
+that signify Resource temporarily unavailable.
+
+![Blocking vs Non Blocking IO](/blog/images/chassing-99-percentile-pt-1/blocking_vs_nonblocking.png)
+
+In I/O Multiplexing a combination of and
+[select()](https://man7.org/linux/man-pages/man2/select.2.html)
+[poll()](https://man7.org/linux/man-pages/man2/poll.2.html) system calls are
+used for monitoring multiple file descriptors that will later become ready to
+perform I/O. Our application will block on one of these system calls rather than
+on [recvfrom](https://man7.org/linux/man-pages/man3/recvfrom.3p.html) as used by
+blocking and non-blocking models. The multiplexing model uses _select_ to notify
+our application that a socket is readable in which case our application can then
+make the system call via _recvfrom_.
+
+![IO Multiplexing](/blog/images/chassing-99-percentile-pt-1/io_multiplexing.png)
+
+Go uses a combination of non-blocking and multiplexing models to handle I/O
+efficiently but select and poll are extremely inefficient in comparison to
+[Linux epoll](https://man7.org/linux/man-pages/man7/epoll.7.html). Linux epoll
+is an API (_epoll_create, epoll_ctl, epoll_wait_) that is used to monitor
+multiple file descriptors to see if they are ready for I/O.
+
+From the users perspective epoll contains two lists:
+
+- The interest list which contains a set of file descriptors the process has
+  registered an interest in monitoring which can be registered via _epoll_ctl_.
+- The ready list which contains a list of those file descriptors we are
+  interested in that are ready to perform I/O. We can monitor this list via
+  _epoll_wait_ which will block the calling thread if no events are currently
+  available.
+
+![Epoll](/blog/images/chassing-99-percentile-pt-1/epoll.png)
+
+A single thread using epoll can handle tens of thousands of concurrent requests
+and is a lot more efficient in comparison to other mechanism’s such as poll and
+select as shown in the following experiment from the book
+[Linux Programming Interface](https://man7.org/tlpi/).
+
+![Epoll comparison](/blog/images/chassing-99-percentile-pt-1/epoll_comparison.png)
+_Table taken from pg 1365 of The Linux Programming Interface by Michael
+Kerrisk._
+
+What I love about the Go scheduler is its ability to leverage Linux epoll.
+
+If a Goroutine needs to perform a network based system call then Go has the
+ability to move this G off the M and place it in what is called the Net Poller
+which in turn registers the file descriptor using _epoll_ctl_ with
+_EPOLL_CTL_ADD_. This then prevents the goroutine from blocking the M and frees
+it up to run another goroutine.
+
+Go’s
+[net poller](https://github.com/golang/go/blob/master/src/runtime/netpoll_epoll.go)
+then uses the _epoll_wait_ system call to then collect batches of 128 where it
+then cycles these events back to the go scheduler.
+
+Lastly it’s important to clean up these file descriptors to avoid starving a
+goroutine. This is done by calling _epoll_ctl_ with _EPOLL_CTL_DEL_ operation
+which will unregister the file descriptor in the epoll interest list.
+
+What is clever about this approach is that this moves the hard work of
+processing network requests from the scheduler to the OS.
+
+Prior to Go 1.25 any P could use the net poller instance but for workloads that
+were leveraging a large number of cores this lead to serious cpu time spent on
+_epoll_wait_ so as part of Go1.25 the netpoller is only polled from a single
+thread in order to avoid kernel contention →
+[runtime: only poll network from one P at a time in findRunnable](https://go-review.googlesource.com/c/go/+/669235)
+
+If your also interested there are talks of potentially using
+[io_uring](https://www.man7.org/linux/man-pages/man7/io_uring.7.html) for doing
+file I/O. If you are interested you can read about it in the paper
+[Efficient IO with io_uring](https://kernel.dk/io_uring.pdf) or if you want to
+follow the discussion on GitHub you can go here
+[internal/poll: transparently support new linux io_uring interface #31908](https://github.com/golang/go/issues/31908).
+
+## Diving one level deeper - The Linux OS Scheduler 🐧
+
+![You are at Linux OS](/blog/images/chassing-99-percentile-pt-1/you_are_in_os_space.png)
+
+Our Go Scheduler uses a OS Thread (M) to run its goroutines but what is the M
+really? Threads are the smallest unit of processing an OS can perform. They are
+responsible for executing instructions on the hardware. Every process running on
+our machines is allocated at least 1 thread with the ability for this thread to
+spawn more threads.
+
+Similar to our Go Scheduler an OS Thread can also be in 3 states:
+
+- **Executing**: The thread is placed on a core and is running its instructions.
+- **Runnable**: The thread is is hanging out and waiting to be executed.
+- **Waiting**: The thread was running but has been stopped and is now waiting to
+  be placed on a core again.
+
+Each Thread can perform two types of work:
+
+- **CPU-Bound**: This is work that results in the thread never being able to be
+  placed into a waiting state and often times involves some sort of calculation
+  like calculating the
+  [nth Fibonacci number](https://en.wikipedia.org/wiki/Fibonacci_sequence).
+- **IO-Bound**: This type of work on the other hand can cause the thread to be
+  placed into a waiting state and often times involves performing:
+  - Network calls
+  - System calls
+  - Synchronisation events, things like atomic operations and mutexes.
