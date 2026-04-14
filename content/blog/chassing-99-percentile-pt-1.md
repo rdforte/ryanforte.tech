@@ -309,3 +309,138 @@ Each Thread can perform two types of work:
   - Network calls
   - System calls
   - Synchronisation events, things like atomic operations and mutexes.
+
+If a thread has a lot of cpu bursts when compared to IO work then we refer to
+this as a cpu bound task. If a thread on the other hand is mostly doing IO work
+then we refer to this as a I/O bound task. Its good to know what category your
+application falls under as this can help steer us in the right direction when it
+comes to fine tuning our go applications.
+
+![IO vs CPU bound](/blog/images/chassing-99-percentile-pt-1/io_vs_cpu_bound.png)
+
+When it comes to scheduling these tasks there are two main approaches the OS can
+take. The first is cooperative where a task comes in we either pick it up or
+pick up another tasks that’s waiting to run. We then place that task on the cpu
+and run it to completion then when its done it makes a system call and gives up
+the cpu cooperatively so the next task can then run its instructions to
+completion on the cpu.
+
+The Linux OS on the other hand uses a Preemptive Scheduler which involves
+interrupting a task when it has exceeded its allocated time (quanta/time slice)
+and taking the thread that is in the Executing state and moving it to the
+Waiting state so the OS can then take a higher priority task and move it from
+either the Runnable or Waiting state to the Executing state. Hey Hey Hey this
+sounds kind of similar to the Go Scheduler right! 🧐 This type of scheduling
+however makes it next to impossible to predict what actions the scheduler will
+perform.
+
+This action of moving Threads on and off a core is referred to as a _Context
+Switch_ and is considered to be an expensive operation - especially at the OS
+level. The size of an OS Thread on Linux is ~ 2MB on Linux/x86-32 which is about
+1000x the size of our goroutine - the larger the thread size the more expensive
+a context switch can be. There are other factors at play that can affect how
+expensive a context switch can be but it wouldn’t be unreasonable to say that a
+single context switch can take approximately 1000-1500 nanoseconds. Doesn’t seem
+like much but boy o boy as you’ll see later it can be!
+
+The Linux Scheduler along with being preemptive is also a _priority_ based
+scheduler meaning_ it will pick the highest priority task in the highest
+scheduling class. The lower the priority value the higher up on the chain the
+task is in terms of being prioritised.
+
+There are two types of scheduling classes. The first is _Real-time_ which
+involves the use of FIFO or Round Robbin of tasks running to completion or until
+they exhaust a time slice. This class has the highest priority and is often
+reserved for high priority tasks.
+
+The second class is _Normal class_ which uses _Completely Fair Scheduler (CFS)_.
+This is where we will be focusing most of our time and later on in Pt2 and Pt3
+we will see how we can optimise CFS to help reduce the tail latency of our Go
+applications.
+
+CFS is a process scheduler developed by
+[Ingo Molnár](https://en.wikipedia.org/wiki/Ingo_Moln%C3%A1r) and merged in
+_Linux 2.6.23_. In a nutshell it is a way in which the Linux OS ensures that
+every process gets its fair share of resources (cpu, memory etc…) and no one
+particular process is hogging all the resources.
+
+![Sharing resources cfs](/blog/images/chassing-99-percentile-pt-1/sharing_resources_cfs.png)
+
+The main system resource we will be focussing on in this article is CPU. The way
+in which we can tell a particular process how much CPU it is allowed to consume
+is through _Linux control groups_ which are part of CFS. There are 2 main
+control groups for allocating CPU and for each control groups there are 2
+versions _V1_ and _V2_.
+
+![Linux Control groups](/blog/images/chassing-99-percentile-pt-1/control_groups_versions.png)
+
+Lets start with CPU Limits but before we dive in it’s important to understand
+that when we allocate cpu to a process we are NOT allocating a whole or part of
+a cpu but what we are in fact allocating is the amount of time that process gets
+on the cpu ⏱️.
+
+How does this time based allocation work exactly? For CPU Limits the Linux OS
+runs a constant _100ms cycle_ that keeps iterating indefinitely. This is
+referred to as the _CPU Period_ and can be configured via _cpu.cfs_period_us_ in
+V1 or in _cpu.max_ for V2 and is a global setting.
+
+For each 100ms period we can allocate the amount of cpu time this process gets
+to run. This can be configured via _cpu.cfs_quota_us_.
+
+For example if we had a single threaded application that we gave 50ms of cpu
+time then we would set it like so:
+
+```
+cpu.cfs_quota_us = 50000
+```
+
+This is set in milliseconds. An illustration of how the quota works in relation
+to the period is show below:
+
+![Linux Control groups](/blog/images/chassing-99-percentile-pt-1/period_and_cpu_time.png)
+
+If we cat these files for control groups V1 we get:
+
+```
+cat /sys/fs/cgroup/cpu,cpuacct/cpu.cfs_period_us // 100000
+```
+
+```
+cat /sys/fs/cgroup/cpu,cpuacct/cpu.cfs_quota_us // 50000
+```
+
+And for control groups V2:
+
+```
+cat /sys/fs/cgroup/cpu,cpuacct/cpu.max // 50000 100000
+```
+
+So the question then is what happens once we reach this 50ms cpu time? The
+answer is 🚨**Throttling**🚨.
+
+At 50ms of cpu time CFS will step in and stop/throttle ✋ our application for
+the remainder of the 100ms period. So in this scenario here our application
+would sit idle for 50ms doing absolutely nothing.
+
+![Throttling no good](/blog/images/chassing-99-percentile-pt-1/cpu_throttling_per_period.png)
+
+We can also inspect this behaviour by looking at the _cpu.stat_ file.
+
+Here is a stat ripped from
+[Uber/automaxprocs](https://github.com/uber-go/automaxprocs) experiment where a
+quota of 2 cpu was set on a 24 core machine. The large variance of quota and
+cores is to emphasise the throttling.
+
+```
+  cat /sys/fs/cgroup/cpu,cpuacct/system.slice/[...]/cpu.stat
+
+  nr_periods 42227334
+  nr_throttled 131923
+  throttled_time 88613212216618
+```
+
+- **nr_periods** represents the total number of control group periods that have
+  elapsed since the control group creation.
+- **nr_throttled** is the number of times the process was throttled.
+- **throttled_time** is the amount of time our app was throttled and sitting
+  idle and not able to perform work.
