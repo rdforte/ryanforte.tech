@@ -15,12 +15,12 @@ This article is built entirely on my understanding and mental model of the Go
 Scheduler, CFS and CPU clock cycles. I’ve tried to validate everything based on
 external sources but If I have made a mistake or something is not entirely
 accurate then feel free to shoot me a message on my
-[LinkedIn](https://www.linkedin.com/in/rdforte/) 🙂
+[LinkedIn](https://www.linkedin.com/in/rdforte/) **🙂**
 
 ## Introduction
 
-This article was starting to get a bit long, still is pretty long 😅 so I have
-decided to break it into 3 parts:
+This article was starting to get a bit long, still is pretty long **😅** so I
+have decided to break it into 3 parts:
 
 - Pt 1 Building a mental model.
 - Pt 2 Understanding your tools.
@@ -137,12 +137,12 @@ which are not as significant as the main 3 but worth mentioning:
 - **Dead** → The goroutine is in what is called the free list.
 
 I just want to quickly touch on the the Dead state because this is partly why
-goroutines are so optimal. When a goroutine finishes executing it is dead 🪦 and
-is placed into what is referred to as the free list. This will either be the
+goroutines are so optimal. When a goroutine finishes executing it is dead **🪦**
+and is placed into what is referred to as the free list. This will either be the
 local free list of the P or a global free list. When a new goroutine is created
 it will try to recycle an old goroutine from the free list otherwise it will
-spin up a new one. This recycling process ♻️ is what makes goroutines so cheap
-to create!
+spin up a new one. This recycling process **♻️** is what makes goroutines so
+cheap to create!
 
 ![Goroutine Recycle](/blog/images/chassing-99-percentile-pt-1/recycle_goroutines.png)
 
@@ -190,8 +190,8 @@ been running for longer than 10ms as defined by
 [forcePreemptNS](https://github.com/golang/go/blob/356b87fa7bbba02debea59d2d03e1eca1750ccb6/src/runtime/proc.go#L6658)
 it sends a [tgkill](https://man7.org/linux/man-pages/man2/tgkill.2.html) signal
 (the name is misleading. It does no killing just sends a signal to the process
-✉️) to the M running the goroutine. The goroutine will then be suspended and put
-into the global run queue where it will be later picked back up by a P. This
+**✉️**) to the M running the goroutine. The goroutine will then be suspended and
+put into the global run queue where it will be later picked back up by a P. This
 then frees up other goroutines to do work ensuring a fairer balance of goroutine
 time on the OS Thread.
 
@@ -330,7 +330,7 @@ interrupting a task when it has exceeded its allocated time (quanta/time slice)
 and taking the thread that is in the Executing state and moving it to the
 Waiting state so the OS can then take a higher priority task and move it from
 either the Runnable or Waiting state to the Executing state. Hey Hey Hey this
-sounds kind of similar to the Go Scheduler right! 🧐 This type of scheduling
+sounds kind of similar to the Go Scheduler right! **🧐** This type of scheduling
 however makes it next to impossible to predict what actions the scheduler will
 perform.
 
@@ -377,7 +377,7 @@ versions _V1_ and _V2_.
 Lets start with CPU Limits but before we dive in it’s important to understand
 that when we allocate cpu to a process we are NOT allocating a whole or part of
 a cpu but what we are in fact allocating is the amount of time that process gets
-on the cpu ⏱️.
+on the cpu **⏱️**.
 
 How does this time based allocation work exactly? For CPU Limits the Linux OS
 runs a constant _100ms cycle_ that keeps iterating indefinitely. This is
@@ -416,7 +416,9 @@ cat /sys/fs/cgroup/cpu,cpuacct/cpu.max // 50000 100000
 ```
 
 So the question then is what happens once we reach this 50ms cpu time? The
-answer is 🚨**Throttling**🚨.
+answer is
+
+**🚨🚨🚨****Throttling****🚨🚨🚨**
 
 At 50ms of cpu time CFS will step in and stop/throttle ✋ our application for
 the remainder of the 100ms period. So in this scenario here our application
@@ -444,3 +446,130 @@ cores is to emphasise the throttling.
 - **nr_throttled** is the number of times the process was throttled.
 - **throttled_time** is the amount of time our app was throttled and sitting
   idle and not able to perform work.
+
+If we do some basic maths we can work out how long this experiment ran for:
+
+```
+(42227334 * 100ms) /1000/60/60/24 = 48 days this control group ran for.
+```
+
+and how much time our application was spent throttled:
+
+```
+88613212216618 / 1000ns / 1000µ / 1000ms / 60 / 60 / 24
+~= 1 full day of throttling out of 48 days of running.
+```
+
+If this was scaled up to a year that would be approximately 1 whole week where
+our application was doing 𝟎, nada, nil, zilch work. Thats like our application
+deciding to take a full week off work.
+
+![Gopher workday leave](/blog/images/chassing-99-percentile-pt-1/gopher_workday_leave.png)
+
+CFS provides us with another control group mechanism we can use to configure
+resources for our tasks called _CPU Shares_.
+
+CPU Shares act a bit different to CPU Limits. There is no concept of a 100ms
+period and instead we go off wall time (elapsed real time) **🕗**. We also no
+longer allocate an exact amount of cpu time to a process but instead give each
+process a weight that we can use to distribute how much cpu time each process
+gets. To help explain this I’ll give two examples.
+
+#### Example 1.
+
+If I have 2 processes (A and B) running side by side and each process is given a
+equal weight of 512:
+
+```
+CPU Time A = A / (A+B)
+
+CPU Time B = B / (A+B)
+
+CPU Time = 512/(512+512) = 50% cpu time.
+```
+
+Process A and B would get roughly around the same amount of time on the CPU.
+
+#### Example 2.
+
+Process A is given a weight of 768 and Process B = 256
+
+```
+Process A CPU Time = 768/1024 = 75%
+
+Process B CPU Time = 256/1024 = 25%
+```
+
+Process A now gets 3 times the amount of CPU time compared to process B.
+
+In control groups v1 we can configure the weight via cpu.shares:
+
+```
+cat sys/fs/cgroup/cpu,cpuacct/cpu.shares // 1024
+```
+
+In control groups v2 we set the weight via _cpu.weight_ and setting a similar
+weight would display:
+
+```
+cat sys/fs/cgroup/cpu,cpuacct/cpu.weight // 39
+```
+
+This is because in control groups v2 the weight is based off of the following
+formula:
+
+```
+cpu.weight = (1 + ((cpu.shares - 2) * 9999) / 262142)
+= (1 + ((1024 - 2) * 9999) / 262142) ~= 39
+```
+
+This conversion does come with a few problems for k8s workloads 🙊 which are
+outlined in
+[New Conversion from cgroup v1 CPU Shares to v2 CPU Weight](https://kubernetes.io/blog/2026/01/30/new-cgroup-v1-to-v2-cpu-conversion-formula/)
+
+This means that as time passes the Linux OS will try to balance the cpu time
+based on the percentages we calculated.
+
+Here’s the thing though. These weights really only take effect when the process
+are under contention ie: battling for more cpu time **⚔️**. In the case of
+example 1 and 2 if process A is sitting idle and isn’t using all of its cpu time
+and process B is under heavy load and needs more cpu time it can then use all of
+the cpu time not used by process A. Its worth repeating that this only happens
+under contention.
+
+Question though, if time is progressing based off of wall clock time how does
+CFS ensure each process gets its fair share of cpu time relative to its weight?
+
+The answer is through the use of a time ordered
+[Red Black Tree](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree) **🌳**
+data structure to help build a timeline of future task execution. Every task
+that is placed into the tree is sorted based on their `vruntime` key. The
+`vruntime` is a value that keeps track of the amount of time that task has run
+on the cpu.
+
+As time progresses forward the tasks are put into the tree more and more to the
+right with these tasks slowly making their way to the left side of the tree. CFS
+will then select the left most task in the tree to run next.
+
+The ordering of the tree is based on having tasks with smaller `vruntime` to the
+left of the tree and larger `vruntime` to the right. A smaller `vruntime` means
+the task has had less time on the CPU.
+
+The `vruntime` value can be altered through the use of CPU Shares. Tasks with a
+higher weight have their `vruntime` change at a slower pace **🐌** there by
+moving them further left in the tree more often compared to tasks with a lower
+weight which increases the `vruntime` at a faster pace **🏎️** keeping the task
+further right in the tree.
+
+The formula for calculating the vruntime based on control group weight can be
+shown below:
+
+```
+vruntime += actual_task_runtime ×(1024 / weight)
+```
+
+Every time a scheduler tick (not tobe confused with a clock tick) is performed
+the tasks CPU usage is accounted for and the `vruntime` is recalculated until it
+is no longer the left most task and another task is selected.
+
+![Red Black Tree](/blog/images/chassing-99-percentile-pt-1/red_black_tree.png)
