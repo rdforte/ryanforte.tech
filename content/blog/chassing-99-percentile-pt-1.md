@@ -54,7 +54,7 @@ clarity will hopefully give you the technical depth required to solve the kind
 of complex problems that remain unreachable without a deep understanding of
 these systems.
 
-## A look under the hood - The Go Scheduler 🏎️
+## A look under the hood - The Go Scheduler
 
 ![User Space](/blog/images/chassing-99-percentile-pt-1/you_are_in_user_space.png)
 
@@ -543,23 +543,23 @@ CFS ensure each process gets its fair share of cpu time relative to its weight?
 The answer is through the use of a time ordered
 [Red Black Tree](https://en.wikipedia.org/wiki/Red%E2%80%93black_tree) **🌳**
 data structure to help build a timeline of future task execution. Every task
-that is placed into the tree is sorted based on their `vruntime` key. The
-`vruntime` is a value that keeps track of the amount of time that task has run
-on the cpu.
+that is placed into the tree is sorted based on their _vruntime_ key. The
+vruntime is a value that keeps track of the amount of time that task has run on
+the cpu.
 
 As time progresses forward the tasks are put into the tree more and more to the
 right with these tasks slowly making their way to the left side of the tree. CFS
 will then select the left most task in the tree to run next.
 
-The ordering of the tree is based on having tasks with smaller `vruntime` to the
-left of the tree and larger `vruntime` to the right. A smaller `vruntime` means
-the task has had less time on the CPU.
+The ordering of the tree is based on having tasks with smaller vruntime to the
+left of the tree and larger vruntime to the right. A smaller vruntime means the
+task has had less time on the CPU.
 
-The `vruntime` value can be altered through the use of CPU Shares. Tasks with a
-higher weight have their `vruntime` change at a slower pace **🐌** there by
-moving them further left in the tree more often compared to tasks with a lower
-weight which increases the `vruntime` at a faster pace **🏎️** keeping the task
-further right in the tree.
+The vruntime value can be altered through the use of CPU Shares. Tasks with a
+higher weight have their vruntime change at a slower pace **🐌** there by moving
+them further left in the tree more often compared to tasks with a lower weight
+which increases the vruntime at a faster pace **🏎️** keeping the task further
+right in the tree.
 
 The formula for calculating the vruntime based on control group weight can be
 shown below:
@@ -569,7 +569,159 @@ vruntime += actual_task_runtime ×(1024 / weight)
 ```
 
 Every time a scheduler tick (not tobe confused with a clock tick) is performed
-the tasks CPU usage is accounted for and the `vruntime` is recalculated until it
+the tasks CPU usage is accounted for and the vruntime is recalculated until it
 is no longer the left most task and another task is selected.
 
 ![Red Black Tree](/blog/images/chassing-99-percentile-pt-1/red_black_tree.png)
+
+## Diving two levels deeper - the clock cycle of a CPU
+
+![Hardware](/blog/images/chassing-99-percentile-pt-1/you_are_in_hardware_space.png)
+
+There are many aspects of a CPU we can focus on and drill down into - too many
+for a single blog post. Instead, I wanted to focus on the clock cycle and try
+get an understanding of how time correlates to instructions so we can see how an
+incorrect scheduler setup directly leads to missed instructions.
+
+The CPU clock speed is the tempo your processor runs at or the number of ticks
+it can perform per second, similar to a heartbeat. It’s often measured in hertz
+(Hz) and on modern day CPU’s you’ll see gigahertz GHz which are billions of
+cycles that coordinate what instructions the cpu performs next or in biological
+terms this is like billions of heartbeats per second.
+
+```
+3.6 GHz = 3,600,000,000 cycles per second
+
+= 1 / 3.6*10^9 = 0.000000000277778 seconds per cycle or
+
+= 0.000000277777778 milliseconds per cycle or
+
+= 0.000277777778 microseconds per cycle or
+
+= 0.277777778 nanoseconds per cycle
+```
+
+1 tick or 1 cycle therefore takes only ~0.278 nanoseconds on a 3.6GHz CPU. Note
+that every cpu is different and this is just a gauge to go off as the
+microarchitecture varies from cpu to cpu. For example a modern M1 processor
+running at 2.5GHz is plenty times faster than an old school Pentium 4 Processor
+running at 3.8Ghz.
+
+![Computer Chips](/blog/images/chassing-99-percentile-pt-1/computer_chips.png)
+
+So, what does this mean for us? Take an Intel i7 running at 3GHz as an example.
+That speed translates to 3 clock cycles every single nanosecond. If that CPU
+performs 4 instructions per cycle, it’s processing roughly 12 instructions per
+nanosecond.
+
+An instruction in simple terms is just an order given to the computer processor
+by the computer program or in our case its our Go program telling our CPU to do
+something.
+
+So if we move back up the chain to the OS level where we utilise threads to
+perform these instructions we mentioned earlier that moving the thread on/off
+the core ie: context switching the M took around 1000 nanoseconds or in our case
+this is a whopping 12,000 instructions that we just missed out on because of a
+context switch that our program could have been performing otherwise.
+
+goroutine which if we recall are light weight application level threads that run
+on the thread take ~ 200 nanoseconds to be context switched on/off the M.
+Therefore we only lose ~2,400 instructions when we context switch at the
+application level vs the OS level. This is a difference of ~9,600 instructions
+**🤯**
+
+This becomes even more evident when using CPU Limits. In our previous example,
+we set a limit that caused the application to throttle for 50ms. Since our CPU
+can handle 12 million instructions per millisecond, that 50ms gap represents 600
+million potential instructions our application missed out on during that single
+100ms period **🤯🤯** (double exploding head!)
+
+I guess now when we look at it like this a few milliseconds can mean a lot of
+work our application’s could have been doing otherwise.
+
+## Starting our Go application for the first time
+
+Now that we have a bit more of an understanding from the Go Scheduler level down
+to the OS and CPU I want to close out this article by looking at how our Go
+program can configure the number of P’s which in turn sets the number of M’s and
+therefore the number of goroutines we can run in parallel.
+
+In Go we have this nice little function and environment variable that is part of
+the [runtime package](https://pkg.go.dev/runtime) which is responsible for
+setting the number of operating system threads M’s that can run user level go
+code. This function / env variable Iam talking about is **GOMAXPROCS**.
+
+We can manually set the number of P’s via env variable:
+
+```
+GOMAXPROCS=5 go run .
+```
+
+Or In our Go application code:
+
+```
+runtime.GOMAXPROCS(5)
+```
+
+We can get the current value for gomaxprocs by passing 0 to the function:
+
+```
+fmt.Println(runtime.GOMAXPROCS(0)) // prints 5
+```
+
+A lot has changed for gomaxprocs in Go version 1.25. In version 1.24 when our
+application booted up for the first time the Go runtime would try to figure out
+what to set for GOMAXPROCS by
+asking[runtime.NumCPU()](https://pkg.go.dev/runtime#NumCPU) what the value
+should be. The runtime.NumCPU function would look at the number of cores on the
+machine and set this for GOMAXPROCS.
+
+![Gomaxprocs 1.24](/blog/images/chassing-99-percentile-pt-1/gomaxprocs1.24.png)
+
+Now this could be problematic for a lot of Go users because if your like most
+people your probably running your Go applications in Docker and using some form
+of container orchestration like [Kubernetes](https://kubernetes.io/).
+
+For example here is a K8s Pod with a 8 cores and a container with a hard limit /
+cpu limit of 4. Now if your not aware Kubernetes uses CFS to enforce these
+limits so what would happen in go apps running go 1.24 or lower is the
+following:
+
+![8 cores throttling](/blog/images/chassing-99-percentile-pt-1/8_cores_throttle.png)
+
+runtime.NumCPU() returns 8 cores which sets the max parallelism to 8. Now if you
+recall we set the limit to 4 which in turn sets the _cpu.cfs_quota_us_ to 400ms
+which is 400ms of cpu time per 100ms period.
+
+So what happens to our Go application? Each OS thread is going to run go
+routines for ~50ms.
+
+Why only 50ms you say? If we add up each threads cpu time, that is 50ms x 8
+threads = 400ms of cpu time which equals the cpu limit set by the container.
+This results in our Go application then being throttled for the remainder of the
+period. Oh dear me **🤕**
+
+In Go 1.25 this issue was addressed by making the Go Scheduler CFS aware. This
+was big news for us K8s devs who were use to using
+[uber/automaxprocs](https://github.com/uber-go/automaxprocs) to solve the
+infamous [#33803 issue](https://github.com/golang/go/issues/33803).
+
+So lets dive in and have a look under the hood at how the Go team addressed this
+issue.
+
+In terms of the functions and environment variables available to us for setting
+GOMAXPROCS, it is relatively the same except now we have a new function called
+[setDefaultGOMAXPROCS()](https://pkg.go.dev/runtime#SetDefaultGOMAXPROCS) which
+is available to us if we ever want to revert back to the default implementation
+outlined below.
+
+![Gomaxprocs 1.25](/blog/images/chassing-99-percentile-pt-1/gomaxprocs1.25.png)
+
+Before I dive into what is happening here I’ve outlined the main execution path
+for setting GOMAXPROCS above, there is a lot more going on under the hood but I
+think this flow covers the bulk of it.
+
+So lets dive into the first part of that diagram **🤿** and take a look to see
+what is happening!
+
+![Highlevel 1.25 flow](/blog/images/chassing-99-percentile-pt-1/high_level_1.25_flow.png)
