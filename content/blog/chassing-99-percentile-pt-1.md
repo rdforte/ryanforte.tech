@@ -195,7 +195,7 @@ put into the global run queue where it will be later picked back up by a P. This
 then frees up other goroutines to do work ensuring a fairer balance of goroutine
 time on the OS Thread.
 
-## Go's I/O Model 📬
+## Go's I/O Model
 
 To understand how Go handles IO we need to take a look at _blocking_,
 _non-blocking_ and _multiplexing IO_.
@@ -725,3 +725,204 @@ So lets dive into the first part of that diagram **🤿** and take a look to see
 what is happening!
 
 ![Highlevel 1.25 flow](/blog/images/chassing-99-percentile-pt-1/high_level_1.25_flow.png)
+
+When we first run our Go application its not our main.go file which first runs
+like a lot of us might think (me included), It’s actually an assembly file which
+is specific to the architecture as set by _GOARCH_ env variable. For example if
+we set _GOARCH=arm64_ then the assembly file that gets picked for execution is
+runtime/asm_arm64.s.
+
+If we take a look at runtime/asm_arm64.s, the first piece of assembly in this
+file we are most interested in is:
+
+```
+BL runtime.osinit(SB)
+```
+
+Branch with Link (BL) is used to call the function _runtime.osinit_ in
+_runtime/os_linux.go_. There are numberous OS files for different operating
+systems such as _os_windows.go_ but we help guide our Go application to the
+correct OS file with _GOOS_ env variable set to linux.
+
+_osinit()_ is responsible for retrieving the number of CPU’s from the process
+affinity mask. If your not familiar with a cpu affinity mask its essentially
+just a bit mask that allows us to bind specific processes or threads to
+designated cpu cores. On linux this can be achieved via the
+[sched_setaffinity](https://man7.org/linux/man-pages/man2/sched_setaffinity.2.html)
+system call. This is an improvement over Go 1.24 which ignored the affinity mask
+and defaulted to the number of cores. So why have this here you might ask? Well
+in some situations we might want to allocate a single thread to a single CPU
+core and set the affinity mask of all other threads to exclude that CPU core we
+allocated the thread to. This would ensure maximum execution speed for that
+thread and then save the added performance cost of cache invalidation when you
+switch one thread off a core and onto a different core.
+
+The second and final piece of assembly we are interested in is:
+
+```
+BL runtime.schedinit(SB)
+```
+
+Here Branch with Link (BL) is used to call the _schedInit()_ function in
+_runtime/proc.go_ which then internally runs a function called
+_defaultGOMAXPROCSInit()_. Lets take a look at the second part of that diagram
+now from earlier.
+
+![Go defaultGOMAXPROCSInit](/blog/images/chassing-99-percentile-pt-1/default_gomaxprocs_init.png)
+
+If we have the following environment variable set _GODEBUG=containermaxprocs=0_
+Then we default back to Go1.24 implementations which will call
+_runtime.NumCPU()_ to set the value for gomaxporcs. If not then we need to
+determine if there are any cpu limits imposed by the Completely Fair Scheduler.
+
+To do this first we need to look up the cgroup mount point in
+_/proc/self/mountinfo_ and the cpu relative path and version from
+_/proc/self/cgroup_.
+
+To help explain how this works lets run a container on our laptop with the
+docker cpu resources set to 8 and the container set to a limit of 4.
+
+![Docker CPU 8](/blog/images/chassing-99-percentile-pt-1/docker_cpu_8.png)
+
+```Docker
+// docker-compose.yml
+
+services:
+  app:
+    container_name: demo
+      build:
+        context: .
+        dockerfile: Dockerfile
+    image: demo
+    deploy:
+      resources:
+        limits:
+          cpus: "4" # limit to 4 CPU
+```
+
+Lets first take a look at the relative path in _/proc/self/cgroup_ to see what
+we get:
+
+```
+0::/
+```
+
+Ok, its just a _/_.
+
+Now let have a look in _/proc/self/mountinfo_ which will help tell us the mount
+point and cgroup version.
+
+```
+634 633 0:34 / /sys/fs/cgroup ro,nosuid,nodev,noexec,relatime - cgroup2 cgroup rw
+```
+
+This line in the mountinfo tells me the cgroup version is V2 by _cgroup2_ and
+the mount point is _/sys/fs/cgroup_.
+
+We can now join the mount point + relative path + file based on cgroup version.
+
+```
+/sys/fs/cgroup + / + cpu.max
+```
+
+If we now cat this file:
+
+```
+cat /sys/fs/cgroup/cpu.max
+
+// 400000 100000
+```
+
+The number on the left is the quota and the right is the period.
+
+Now for some basic math:
+
+```
+400000 / 100000 = 4 cpu
+```
+
+and presto **🪄 ✨** we have our 4 CPU's as express in our _docker-compose.yml_
+file. If this was Go 1.24 that would have been _800000 / 100000 = 8 cpu_ **🙅‍♂️**.
+
+Lastly Go then compares the cpu limit we derived from above to the cpu affinity
+mask and adjusts the gomaxprocs via
+[adjustCgroupGOMAXPROCS()](https://github.com/golang/go/blob/0dc89195f9aece70476320be3fc9d6d657904056/src/runtime/cgroup_linux.go#L109)
+function.
+
+Few things to note here:
+
+1. If the cpu limit is set to 1 but the node we are running on has more than 1
+   core then gomaxprocs defaults to 2 not 1. Uber/automaxprocs would respect
+   this and use 1. Not a fan of this approach as discussed earlier with CPU
+   Limit throttling but this does help some workloads that are burstable.
+2. If we are using partial limits we take the ceil. Uber/automaxprocs would
+   floor this value.
+
+Point 2 is an interesting one because GOMAXPROCS does not have the concept of a
+fractional CPU so we have to decide do we round up or down . Either way it’s a
+tradeoff between low-level throttling with Ceil or underutilisation of the cpu
+with Floor. A bit of history Uber/automaxprocs originally started with Ceil but
+later changed to Floor as their default implementation
+[Issue #13](https://github.com/uber-go/automaxprocs/pull/13). The main cause for
+this was because users who were setting fractional units as a buffer for other
+OS related tasks not tied specifically to your Go program might have needed this
+added fractional cpu. Approximately 6 years later after Uber decided to floor
+gomaxprocs they introduced _RoundQuotaFunc()_ as a way to give the developer
+control over how they wanted to convert the cpu quota ie: round up/down.
+
+## Wrap Up
+
+If you take away one thing from this, let it be that Uber/automaxprocs and Go's
+1.25 container aware [Gomaxprocs implementation](https://go.dev/doc/go1.25) are
+not a one-size-fits-all solution **👠**. These tools and implementations are
+designed to cater to the vast majority of workloads and do not cater to every
+specific use case.
+
+If you are fine-tuning for tail latency, you must move past the surface level
+and look "under the hood" to understand the underlying nature of the system.
+Think of a master sculptor: they do not simply strike the stone; they understand
+the planes of the marble and how the tip of the chisel when striked against the
+grain gives a different outcome based on the angle they strike. They know
+exactly how much material to remove to reveal the form without compromising the
+structural integrity of the whole.
+
+Similarly, when you master how the Go scheduler interacts with the OS and the
+underlying hardware, you stop just writing code but begin sculpting for
+performance. You learn to treat CPU quotas and scheduling latencies as your raw
+medium, carving out the excess medium leaving behind a lean and high-performant
+masterpiece.
+
+In Part 2, I will build upon these concepts and dive into the specific tools and
+approaches we can use to fine-tune our Go applications. I hope to see you there
+**✌️**
+
+![Thats a wrap pt. 1](/blog/images/chassing-99-percentile-pt-1/thats_a_wrap.png)
+
+## References
+
+- [Operating Systems: How Linux does CPU Scheduling](https://youtu.be/keUYCNa7_DY?si=HwK0fxojc9DIgO3E)
+- [CPU Scheduling Basics](https://www.youtube.com/watch?v=Jkmy2YLUbUY)
+- [GitHub Issue #73193](https://github.com/golang/go/issues/73193)
+- [Automaxprocs Pull Request #79](https://github.com/uber-go/automaxprocs/pull/79)
+- [Automaxprocs Pull Request #79](https://github.com/uber-go/automaxprocs/pull/13)
+- [Go 1.25 Release Notes](https://go.dev/doc/go1.25)
+- [Ardanlabs Go Training](https://github.com/ardanlabs/gotraining/tree/master/topics/go/language/arrays)
+- [CPU Clock Speeds Explained](https://www.corsair.com/us/en/explorer/gamer/gaming-pcs/cpu-clock-speed-explained/?srsltid=AfmBOoo9Am3cYPP9wIMkNvcAWBtsmerj-OdQa9PjZIXuRhl8G_bcc6Q9)
+- [The Clock Cycle of a CPU](https://unicminds.com/the-clock-cycle-of-a-cpu/)
+- [Kubernetes V1 CPU Shares to V2 CPU Weight](https://kubernetes.io/blog/2026/01/30/new-cgroup-v1-to-v2-cpu-conversion-formula/)
+- [Operating System Vs Kernel](https://www.geeksforgeeks.org/operating-systems/difference-between-operating-system-and-kernel/)
+- [Linux Select Poll & Epoll](https://jvns.ca/blog/2017/06/03/async-io-on-linux--select--poll--and-epoll/)
+- [Go epoll/kqueue](https://goperf.dev/02-networking/a-bit-more-tuning/)
+- [Go syscall_linux.go](https://github.com/golang/go/blob/f5479628d36e6cdd63c39784b58fa7241abd3295/src/internal/runtime/syscall/linux/syscall_linux.go#L25)
+- [Runtime netpoll_epoll](https://github.com/golang/go/blob/f229e7031a6efb2f23241b5da000c3b3203081d6/src/runtime/netpoll_epoll.go#L106)
+- [What is P99](https://aerospike.com/blog/what-is-p99-latency/)
+- [Amazon 100ms added page load time](https://www.conductor.com/academy/page-speed-resources/faq/amazon-page-speed-study/)
+- [Multi Threading Models](https://www.geeksforgeeks.org/operating-systems/multi-threading-models-in-process-management/)
+- [Go stack](https://github.com/golang/go/blob/go1.24.0/src/runtime/stack.go#L75-L75)
+- [Linux epll_ctl](https://man7.org/linux/man-pages/man2/epoll_ctl.2.html#:~:text=op)
+- [Uber/automaxprocs](https://github.com/uber-go/automaxprocs)
+- [New async I/O API](https://lwn.net/Articles/776703/)
+- [Kernel io_uring](https://kernel.dk/io_uring.pdf)
+- [Linux Kernel Programming CPU Scheduling](https://people.cs.vt.edu/huaicheng/lkp-sp26/slides/L07-sched.pdf)
+- [SVG Repo](https://www.svgrepo.com/)
+- [Go runtime2](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L528-L630)
