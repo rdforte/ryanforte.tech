@@ -14,7 +14,7 @@ headerImageId = "chassing-99-percentile-pt-1-header"
 This article is built entirely on my understanding and mental model of the Go
 Scheduler, CFS and CPU clock cycles. I’ve tried to validate everything based on
 external sources but If I have made a mistake or something is not entirely
-accurate then feel free to shoot me a message on my
+accurate then feel free to shoot me a message on
 [LinkedIn](https://www.linkedin.com/in/rdforte/) **🙂**
 
 ## Introduction
@@ -22,7 +22,7 @@ accurate then feel free to shoot me a message on my
 This article was starting to get a bit long, still is pretty long **😅** so I
 have decided to break it into 3 parts:
 
-- Pt 1 Building a mental model.
+- **Pt 1 Building a mental model.**
 - Pt 2 Understanding your tools.
 - Pt 3 Putting it together with benchmarks.
 
@@ -31,8 +31,8 @@ means 99% of request/response times finish within this time. For example if a
 web servers P99 latency was 3 seconds and we measured 100 requests then out of
 those 100 requests 99 would return in 3 seconds or under. Chasing an improved
 Tail Latency - anything above P90 can be a long road and further drilling down
-into P99 can be an even longer, winding road filled with detour, pot holes and
-dangerous obstacles along the way. It’s no small challenge tackling P99 but
+into P99 can be an even longer, winding road filled with detours and dangerous
+obstacles along the way **⚠️**. It’s no small challenge tackling P99 but
 optimising for the **1%** of users that experience these slow latencies can make
 big impacts at scale. For example back in 2006 Amazon found that for every 100ms
 added to page load times resulted in them losing ~1% in sales. The 1% of users
@@ -48,7 +48,7 @@ understands the grain of their medium and the precise impact of every chisel
 strike to craft a masterpiece, we must understand the "material" of the
 underlying systems we work on top of.
 
-In Part 1 We will delve into the Go scheduler, Linux Scheduler and part of the
+In Part 1 we will delve into the Go scheduler, Linux Scheduler and part of the
 CPU to help build a mental model of how these systems cooperate. Developing this
 clarity will hopefully give you the technical depth required to solve the kind
 of complex problems that remain unreachable without a deep understanding of
@@ -60,8 +60,8 @@ these systems.
 
 If you have worked with concurrency in the past (coroutines in Kotlin and
 goroutines in Go) you may be familiar with the different multi threading models.
-There’s typically three models _many-to-one (N:1)_, _one-to-one (1:1)_ and
-_many-to-many (M:N)_.
+There’s typically three models **many-to-one (N:1)**, **one-to-one (1:1)** and
+**many-to-many (M:N)**.
 
 ![Threading Models](/blog/images/chassing-99-percentile-pt-1/threading_models.png)
 
@@ -77,21 +77,21 @@ The Go scheduler is part of the Go runtime and its main responsibility is the
 orchestration and running of goroutines which are lightweight application
 threads starting at 2KB in size as defined by
 [stackMin](https://github.com/golang/go/blob/go1.24.0/src/runtime/stack.go#L75-L75).
-We can create a new goroutine by using the go keyword followed by a function
+We can create a new goroutine by using the **go** keyword followed by a function
 call. Every new instance of a goroutine contains metadata such as the execution
 state, stack and program counter pointing to the associated function.
 
 When we spin up a new Go application the runtime will reach out to the machine
 (virtual or physical) and identify how many cores there are. It will then use
 this number to create its own internally managed logical processors to represent
-these cores via struct
-[p](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L632-L757)
+these cores via a struct
+[p](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L632-L757),
 which we will refer to as P. For every P or logical processor that the scheduler
 manages it will own its own OS Thread or machine Thread which is controlled by
 by struct
 [m](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L528-L630),
 which we will refer to as M. The struct m holds a reference to the current
-goroutine G and the current logical processor P if the M is executing go code.
+goroutine and the current logical processor P if the M is executing go code.
 
 The best way to think about the P is that it acts as the middle man or bridge
 between our go application and the OS.
@@ -99,11 +99,11 @@ between our go application and the OS.
 ![P Bridge](/blog/images/chassing-99-percentile-pt-1/p_bridge.png)
 
 Now the Go scheduler is responsible for the orchestration of goroutines which
-are managed my struct g, which we will refer to as G. So what the scheduler will
+are managed by struct g, which we will refer to as G. So what the scheduler will
 do is take these goroutines (G’s) and assign them a P where the P will then run
 the G on an M (machine thread). This means that for each logical processor P we
 can have at most 1 M and for each M it can be running at most 1 G. Its a 1:1:1
-ratio. This is referred to as the _GMP Model_.
+ratio. This is referred to as the **GMP Model**.
 
 ![GMP Model](/blog/images/chassing-99-percentile-pt-1/PMG.png)
 
@@ -122,7 +122,7 @@ in one of 3 states:
 
 - **Executing** → The goroutine has been placed on a M and is executing its
   instructions.
-- **Runnable** → The goroutine is waiting to be in an executing state
+- **Runnable** → The goroutine is waiting to be in an executing state.
 - **Waiting** → The goroutine has been moved off the M and is placed in a
   waiting state. This usually happens when the goroutine has to perform some IO
   or synchronisation like acquiring a mutex.
@@ -147,8 +147,8 @@ cheap to create!
 ![Goroutine Recycle](/blog/images/chassing-99-percentile-pt-1/recycle_goroutines.png)
 
 Now if a goroutine is the main path of execution and if your spinning up
-multiple G’s more than the num are available then what happens to those G’s?
-Well short answer is queueing.
+multiple G’s more than the number of P's that are available then what happens to
+those G’s? Well short answer is queueing.
 
 When a goroutine has no place to go it is placed on either the
 [runq](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L654-L654)
@@ -180,13 +180,13 @@ using
 in the body of the loop though this was very tedious and error prone and did
 have some perf issues. More details on this here →
 [runtime: tight loops should
-be preemptib le #10958](https://github.com/golang/go/issues/10958).
+be preemptible #10958](https://github.com/golang/go/issues/10958).
 
 Though in Go 1.14 the Go team decided to move away from a cooperative scheduler
-and instead moved to a preemptive scheduler which solved a lot of these issues.
-At a high level Go runs a daemon on a dedicated thread M called sysmon (system
-monitor) which is not attached to any P. When sysmon finds a goroutine that has
-been running for longer than 10ms as defined by
+and instead moved to a **preemptive scheduler** which solved a lot of these
+issues. At a high level Go runs a daemon on a dedicated thread M called sysmon
+(system monitor) which is not attached to any P. When sysmon finds a goroutine
+that has been running for longer than 10ms as defined by
 [forcePreemptNS](https://github.com/golang/go/blob/356b87fa7bbba02debea59d2d03e1eca1750ccb6/src/runtime/proc.go#L6658)
 it sends a [tgkill](https://man7.org/linux/man-pages/man2/tgkill.2.html) signal
 (the name is misleading. It does no killing just sends a signal to the process
@@ -197,8 +197,8 @@ time on the OS Thread.
 
 ## Go's I/O Model
 
-To understand how Go handles IO we need to take a look at _blocking_,
-_non-blocking_ and _multiplexing IO_.
+To understand how Go handles IO we need to take a look at blocking, non-blocking
+and multiplexing IO.
 
 With your typical blocking IO operations a thread will suspend or pause until
 the system is ready with the requested data. On the other hand non-blocking IO
@@ -210,8 +210,8 @@ that signify Resource temporarily unavailable.
 
 ![Blocking vs Non Blocking IO](/blog/images/chassing-99-percentile-pt-1/blocking_vs_nonblocking.png)
 
-In I/O Multiplexing a combination of and
-[select()](https://man7.org/linux/man-pages/man2/select.2.html)
+In I/O Multiplexing a combination of
+[select()](https://man7.org/linux/man-pages/man2/select.2.html) and
 [poll()](https://man7.org/linux/man-pages/man2/poll.2.html) system calls are
 used for monitoring multiple file descriptors that will later become ready to
 perform I/O. Our application will block on one of these system calls rather than
@@ -222,7 +222,7 @@ make the system call via _recvfrom_.
 
 ![IO Multiplexing](/blog/images/chassing-99-percentile-pt-1/io_multiplexing.png)
 
-Go uses a combination of non-blocking and multiplexing models to handle I/O
+**Go uses a combination of non-blocking and multiplexing models** to handle I/O
 efficiently but select and poll are extremely inefficient in comparison to
 [Linux epoll](https://man7.org/linux/man-pages/man7/epoll.7.html). Linux epoll
 is an API (_epoll_create, epoll_ctl, epoll_wait_) that is used to monitor
@@ -251,8 +251,8 @@ Kerrisk._
 What I love about the Go scheduler is its ability to leverage Linux epoll.
 
 If a Goroutine needs to perform a network based system call then Go has the
-ability to move this G off the M and place it in what is called the Net Poller
-which in turn registers the file descriptor using _epoll_ctl_ with
+ability to move this G off the M and place it in what is called the **Net
+Poller** which in turn registers the file descriptor using _epoll_ctl_ with
 _EPOLL_CTL_ADD_. This then prevents the goroutine from blocking the M and frees
 it up to run another goroutine.
 
@@ -281,7 +281,7 @@ file I/O. If you are interested you can read about it in the paper
 follow the discussion on GitHub you can go here
 [internal/poll: transparently support new linux io_uring interface #31908](https://github.com/golang/go/issues/31908).
 
-## Diving one level deeper - The Linux OS Scheduler 🐧
+## Diving one level deeper - The Linux OS Scheduler
 
 ![You are at Linux OS](/blog/images/chassing-99-percentile-pt-1/you_are_in_os_space.png)
 
