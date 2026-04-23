@@ -319,13 +319,13 @@ comes to fine tuning our go applications.
 ![IO vs CPU bound](/blog/images/chassing-99-percentile-pt-1/io_vs_cpu_bound.png)
 
 When it comes to scheduling these tasks there are two main approaches the OS can
-take. The first is cooperative where a task comes in we either pick it up or
-pick up another tasks that’s waiting to run. We then place that task on the cpu
-and run it to completion then when its done it makes a system call and gives up
-the cpu cooperatively so the next task can then run its instructions to
+take. The first is cooperative where a task comes in we can either pick it up or
+pick up another task that’s been waiting to run. We then place that task on the
+cpu and run it to completion then when its done it makes a system call and gives
+up the cpu cooperatively so the next task can then run its instructions to
 completion on the cpu.
 
-The Linux OS on the other hand uses a Preemptive Scheduler which involves
+The Linux OS on the other hand uses a **Preemptive Scheduler** which involves
 interrupting a task when it has exceeded its allocated time (quanta/time slice)
 and taking the thread that is in the Executing state and moving it to the
 Waiting state so the OS can then take a higher priority task and move it from
@@ -334,8 +334,8 @@ sounds kind of similar to the Go Scheduler right! **🧐** This type of scheduli
 however makes it next to impossible to predict what actions the scheduler will
 perform.
 
-This action of moving Threads on and off a core is referred to as a _Context
-Switch_ and is considered to be an expensive operation - especially at the OS
+This action of moving Threads on and off a core is referred to as a **Context
+Switch** and is considered to be an expensive operation - especially at the OS
 level. The size of an OS Thread on Linux is ~ 2MB on Linux/x86-32 which is about
 1000x the size of our goroutine - the larger the thread size the more expensive
 a context switch can be. There are other factors at play that can affect how
@@ -343,20 +343,20 @@ expensive a context switch can be but it wouldn’t be unreasonable to say that 
 single context switch can take approximately 1000-1500 nanoseconds. Doesn’t seem
 like much but boy o boy as you’ll see later it can be!
 
-The Linux Scheduler along with being preemptive is also a _priority_ based
-scheduler meaning_ it will pick the highest priority task in the highest
+The Linux Scheduler along with being preemptive is also a **priority based
+scheduler** meaning it will pick the highest priority task in the highest
 scheduling class. The lower the priority value the higher up on the chain the
 task is in terms of being prioritised.
 
-There are two types of scheduling classes. The first is _Real-time_ which
+There are two types of scheduling classes. The first is **Real-time_**which
 involves the use of FIFO or Round Robbin of tasks running to completion or until
 they exhaust a time slice. This class has the highest priority and is often
 reserved for high priority tasks.
 
-The second class is _Normal class_ which uses _Completely Fair Scheduler (CFS)_.
-This is where we will be focusing most of our time and later on in Pt2 and Pt3
-we will see how we can optimise CFS to help reduce the tail latency of our Go
-applications.
+The second class is **Normal class** which uses **Completely Fair Scheduler
+(CFS)**. This is where we will be focusing most of our time and later on in Pt2
+and Pt3 we will see how we can optimise CFS to help reduce the tail latency of
+our Go applications.
 
 CFS is a process scheduler developed by
 [Ingo Molnár](https://en.wikipedia.org/wiki/Ingo_Moln%C3%A1r) and merged in
@@ -368,9 +368,9 @@ particular process is hogging all the resources.
 
 The main system resource we will be focussing on in this article is CPU. The way
 in which we can tell a particular process how much CPU it is allowed to consume
-is through _Linux control groups_ which are part of CFS. There are 2 main
+is through **Linux Control Groups** which are part of CFS. There are 2 main
 control groups for allocating CPU and for each control groups there are 2
-versions _V1_ and _V2_.
+versions V1 and V2.
 
 ![Linux Control groups](/blog/images/chassing-99-percentile-pt-1/control_groups_versions.png)
 
@@ -380,12 +380,12 @@ a cpu but what we are in fact allocating is the amount of time that process gets
 on the cpu **⏱️**.
 
 How does this time based allocation work exactly? For CPU Limits the Linux OS
-runs a constant _100ms cycle_ that keeps iterating indefinitely. This is
-referred to as the _CPU Period_ and can be configured via _cpu.cfs_period_us_ in
-V1 or in _cpu.max_ for V2 and is a global setting.
+runs a constant 100ms cycle that keeps iterating indefinitely. This is referred
+to as the **CPU Period** and can be configured via _cpu.cfs_period_us_ in V1 or
+in _cpu.max_ for V2 and is a global setting.
 
-For each 100ms period we can allocate the amount of cpu time this process gets
-to run. This can be configured via _cpu.cfs_quota_us_.
+For each 100ms period we can allocate the amount of **CPU Time/Quota** this
+process gets to run. This can be configured via _cpu.cfs_quota_us_.
 
 For example if we had a single threaded application that we gave 50ms of cpu
 time then we would set it like so:
@@ -467,7 +467,7 @@ deciding to take a full week off work.
 ![Gopher workday leave](/blog/images/chassing-99-percentile-pt-1/gopher_workday_leave.png)
 
 CFS provides us with another control group mechanism we can use to configure
-resources for our tasks called _CPU Shares_.
+resources for our tasks called **CPU Shares**.
 
 CPU Shares act a bit different to CPU Limits. There is no concept of a 100ms
 period and instead we go off wall time (elapsed real time) **🕗**. We also no
@@ -530,12 +530,12 @@ outlined in
 This means that as time passes the Linux OS will try to balance the cpu time
 based on the percentages we calculated.
 
-Here’s the thing though. These weights really only take effect when the process
-are under contention ie: battling for more cpu time **⚔️**. In the case of
-example 1 and 2 if process A is sitting idle and isn’t using all of its cpu time
-and process B is under heavy load and needs more cpu time it can then use all of
-the cpu time not used by process A. Its worth repeating that this only happens
-under contention.
+Here’s the thing though. These weights really only take effect when the
+processes are under contention ie: battling for more cpu time **⚔️**. In the
+case of example 1 and 2 if process A is sitting idle and isn’t using all of its
+cpu time and process B is under heavy load and needs more cpu time it can then
+use all of the cpu time not used by process A. Its worth repeating that this
+only happens under contention.
 
 Question though, if time is progressing based off of wall clock time how does
 CFS ensure each process gets its fair share of cpu time relative to its weight?
@@ -557,9 +557,9 @@ task has had less time on the CPU.
 
 The vruntime value can be altered through the use of CPU Shares. Tasks with a
 higher weight have their vruntime change at a slower pace **🐌** there by moving
-them further left in the tree more often compared to tasks with a lower weight
-which increases the vruntime at a faster pace **🏎️** keeping the task further
-right in the tree.
+them further left **👈** in the tree more often compared to tasks with a lower
+weight which increases the vruntime at a faster pace **🏎️** keeping the task
+further right **👉** in the tree.
 
 The formula for calculating the vruntime based on control group weight can be
 shown below:
@@ -568,13 +568,13 @@ shown below:
 vruntime += actual_task_runtime ×(1024 / weight)
 ```
 
-Every time a scheduler tick (not tobe confused with a clock tick) is performed
+Every time a scheduler tick (not to be confused with a clock tick) is performed
 the tasks CPU usage is accounted for and the vruntime is recalculated until it
 is no longer the left most task and another task is selected.
 
 ![Red Black Tree](/blog/images/chassing-99-percentile-pt-1/red_black_tree.png)
 
-## Diving two levels deeper - the clock cycle of a CPU
+## Diving two levels deeper - The clock cycle of a CPU
 
 ![Hardware](/blog/images/chassing-99-percentile-pt-1/you_are_in_hardware_space.png)
 
@@ -897,6 +897,13 @@ approaches we can use to fine-tune our Go applications. I hope to see you there
 **✌️**
 
 ![Thats a wrap pt. 1](/blog/images/chassing-99-percentile-pt-1/thats_a_wrap.png)
+
+## A bit about the art
+
+All art was made using a combination of self made svg's, svgs from
+[svg repo](https://www.svgrepo.com) and the [go.dev](https://go.dev/images/)
+site which where then altered and combined with custom self made assets on
+[sketch](https://www.sketch.com) and [excalidraw](https://excalidraw.com).
 
 ## References
 
