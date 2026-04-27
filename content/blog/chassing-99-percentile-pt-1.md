@@ -624,8 +624,8 @@ the core ie: context switching the M took around 1000 nanoseconds or in our case
 this is a whopping 12,000 instructions that we just missed out on because of a
 context switch that our program could have been performing otherwise.
 
-goroutine which if we recall are light weight application level threads that run
-on the thread take ~ 200 nanoseconds to be context switched on/off the M.
+A goroutine which if we recall are light weight application level threads that
+run on the thread take ~ 200 nanoseconds to be context switched on/off the M.
 Therefore we only lose ~2,400 instructions when we context switch at the
 application level vs the OS level. This is a difference of ~9,600 instructions
 **🤯**
@@ -649,7 +649,7 @@ therefore the number of goroutines we can run in parallel.
 In Go we have this nice little function and environment variable that is part of
 the [runtime package](https://pkg.go.dev/runtime) which is responsible for
 setting the number of operating system threads M’s that can run user level go
-code. This function / env variable Iam talking about is **GOMAXPROCS**.
+code. This function / env variable I am talking about is **GOMAXPROCS**.
 
 We can manually set the number of P’s via env variable:
 
@@ -671,10 +671,10 @@ fmt.Println(runtime.GOMAXPROCS(0)) // prints 5
 
 A lot has changed for gomaxprocs in Go version 1.25. In version 1.24 when our
 application booted up for the first time the Go runtime would try to figure out
-what to set for GOMAXPROCS by
-asking[runtime.NumCPU()](https://pkg.go.dev/runtime#NumCPU) what the value
-should be. The runtime.NumCPU function would look at the number of cores on the
-machine and set this for GOMAXPROCS.
+what to set for GOMAXPROCS by asking
+[runtime.NumCPU()](https://pkg.go.dev/runtime#NumCPU) what the value should be.
+The runtime.NumCPU function would look at the number of cores on the machine and
+set this for GOMAXPROCS.
 
 ![Gomaxprocs 1.24](/blog/images/chassing-99-percentile-pt-1/gomaxprocs1.24.png)
 
@@ -682,7 +682,7 @@ Now this could be problematic for a lot of Go users because if your like most
 people your probably running your Go applications in Docker and using some form
 of container orchestration like [Kubernetes](https://kubernetes.io/).
 
-For example here is a K8s Pod with a 8 cores and a container with a hard limit /
+For example here is a K8s Pod with 8 cores and a container with a hard limit /
 cpu limit of 4. Now if your not aware Kubernetes uses CFS to enforce these
 limits so what would happen in go apps running go 1.24 or lower is the
 following:
@@ -841,7 +841,7 @@ Now for some basic math:
 400000 / 100000 = 4 cpu
 ```
 
-and presto **🪄 ✨** we have our 4 CPU's as express in our _docker-compose.yml_
+and presto **🪄 ✨** we have our 4 CPU's as expressed in our _docker-compose.yml_
 file. If this was Go 1.24 that would have been _800000 / 100000 = 8 cpu_ **🙅‍♂️**.
 
 Lastly Go then compares the cpu limit we derived from above to the cpu affinity
