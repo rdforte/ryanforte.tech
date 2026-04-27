@@ -902,7 +902,7 @@ approaches we can use to fine-tune our Go applications. I hope to see you there
 
 All art was made using a combination of self made svg's, along with svgs from
 [svg repo](https://www.svgrepo.com) and the [go.dev](https://go.dev/images/)
-site which where then altered and combined with custom self made assets on
+site which were then altered and combined with custom self made assets on
 [sketch](https://www.sketch.com) and [excalidraw](https://excalidraw.com).
 
 ## References
