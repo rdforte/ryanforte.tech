@@ -841,8 +841,9 @@ Now for some basic math:
 400000 / 100000 = 4 cpu
 ```
 
-and presto **🪄 ✨** we have our 4 CPU's as expressed in our _docker-compose.yml_
-file. If this was Go 1.24 that would have been _800000 / 100000 = 8 cpu_ **🙅‍♂️**.
+and presto **🪄 ✨** we have our 4 CPU's as expressed in our
+_docker-compose.yml_ file. If this was Go 1.24 that would have been _800000 /
+100000 = 8 cpu_ **🙅‍♂️**.
 
 Lastly Go then compares the cpu limit we derived from above to the cpu affinity
 mask and adjusts the gomaxprocs via
@@ -933,3 +934,4 @@ site which were then altered and combined with custom self made assets on
 - [Linux Kernel Programming CPU Scheduling](https://people.cs.vt.edu/huaicheng/lkp-sp26/slides/L07-sched.pdf)
 - [SVG Repo](https://www.svgrepo.com/)
 - [Go runtime2](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L528-L630)
+- [Http request multiplexing](https://akshay-kumar.hashnode.dev/go-internals-http-request-multiplexing-in-go-1)
