@@ -935,3 +935,4 @@ site which were then altered and combined with custom self made assets on
 - [SVG Repo](https://www.svgrepo.com/)
 - [Go runtime2](https://github.com/golang/go/blob/go1.24.0/src/runtime/runtime2.go#L528-L630)
 - [Http request multiplexing](https://akshay-kumar.hashnode.dev/go-internals-http-request-multiplexing-in-go-1)
+- [Scheduleri pratik pandey](https://www.linkedin.com/pulse/go-concurrency-series-deep-dive-scheduleri-pratik-pandey-mhx4e)
