@@ -937,3 +937,4 @@ site which were then altered and combined with custom self made assets on
 - [Http request multiplexing](https://akshay-kumar.hashnode.dev/go-internals-http-request-multiplexing-in-go-1)
 - [Scheduleri pratik pandey](https://www.linkedin.com/pulse/go-concurrency-series-deep-dive-scheduleri-pratik-pandey-mhx4e)
 - [Go NetPoller](https://internals-for-interns.com/posts/go-netpoller/)
+- [Cindy Sridharan - Unmasking netpoll.go](https://www.youtube.com/watch?v=xwlo3xigknI)
