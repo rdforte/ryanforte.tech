@@ -259,7 +259,7 @@ it up to run another goroutine.
 Go’s
 [net poller](https://github.com/golang/go/blob/master/src/runtime/netpoll_epoll.go)
 then uses the _epoll_wait_ system call to then collect batches of 128 where it
-then cycles these events back to the go scheduler.
+then cycles these events back to the global run queue.
 
 Lastly it’s important to clean up these file descriptors to avoid starving a
 goroutine. This is done by calling _epoll_ctl_ with _EPOLL_CTL_DEL_ operation
