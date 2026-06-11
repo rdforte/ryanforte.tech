@@ -250,23 +250,44 @@ Kerrisk._
 
 What I love about the Go scheduler is its ability to leverage Linux epoll.
 
-If a Goroutine needs to perform a network based system call then Go has the
-ability to move this G off the M and place it in what is called the **Net
-Poller** which in turn registers the file descriptor using _epoll_ctl_ with
-_EPOLL_CTL_ADD_. This then prevents the goroutine from blocking the M and frees
-it up to run another goroutine.
+If a Goroutine needs to perform a network based system call then Go will perform
+the I/O on the Socket (sockets are just file descriptors) in a non blocking way
+and in the case of a EWOULDBLOCK or EAGAIN signal the Go scheduler then has the
+ability to park the G and move it off the M and place it in what is called the
+**Net Poller** which in turn registers the file descriptor using _epoll_ctl_
+with _EPOLL_CTL_ADD_ in Edge Triggered mode. This then prevents the goroutine
+from blocking the M and frees it up to run another goroutine.
 
-Go’s
+When it comes to using Linux Epoll there are two flavours of readiness mango
+**🥭** and strawberry **🍓**. Jokes the two flavours are actually Edge Triggered
+(EPOLLET) and Level Triggered (EPOLLIN). Edge Triggered is when there is a
+change in state in the File Descriptor such as when the sockets buffer has data
+available so the File Descriptor (FD) moves from a not ready to a ready state.
+On the other hand Level Triggered remains in a ready state anytime the FD can
+perform IO without blocking. Go ops in to use Edge Triggered due to the
+decreased over head of having to manage multiple system calls that come with
+using Level Triggered readiness.
+
+After Go’s
 [net poller](https://github.com/golang/go/blob/master/src/runtime/netpoll_epoll.go)
-then uses the _epoll_wait_ system call to then collect batches of 128 where it
-then cycles these events back to the global run queue.
+registers the FD with Epoll's interest list, Go then uses the _epoll_wait_
+system call to then collect batches of 128 where it then cycles these events
+back to the global run queue to be later picked up by an M. Now when the
+goroutine tries to perform a read on that socket there is now data available in
+the buffer to read so it can read it and then can continue on its mary way doing
+whatever it is the G needs to do.
 
 Lastly it’s important to clean up these file descriptors to avoid starving a
 goroutine. This is done by calling _epoll_ctl_ with _EPOLL_CTL_DEL_ operation
 which will unregister the file descriptor in the epoll interest list.
 
 What is clever about this approach is that this moves the hard work of
-processing network requests from the scheduler to the OS.
+processing network requests from the Go Scheduler to the OS. In our case for
+Linux this is Epoll but for other Operating Systems such as BSD this would be
+[KQUEUE](https://man.freebsd.org/cgi/man.cgi?query=kqueue&apropos=0&sektion=0&format=html)
+in Edge Triggered mode or
+[I/O Completion Ports](https://learn.microsoft.com/en-us/windows/win32/fileio/i-o-completion-ports)
+on Windows which can only be ran in Level Triggered.
 
 Prior to Go 1.25 any P could use the net poller instance but for workloads that
 were leveraging a large number of cores this lead to serious cpu time spent on
